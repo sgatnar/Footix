@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Whitemode -->
+    <color name="black_footix">#FF000000</color>
+    <color name="white_footix">#FFFFFFFF</color>
+    <color name="green_footix">#5B7F63</color>
+    <color name="grey_toolbar_footix">#353C37</color>
+    <color name="grey_background_footix">#CFCFCF</color>
+
+    <!-- Heatmap colors -->
+    <color name="Heatmap_1">#B3FF11</color>
+    <color name="Heatmap_2">#E6B3FF11</color> <!-- 90% opacity -->
+    <color name="Heatmap_3">#B3B3FF11</color> <!-- 70% opacity -->
+    <color name="Heatmap_4">#7AB3FF11</color> <!-- 48% opacity -->
+    <color name="Heatmap_5">#33B3FF11</color> <!-- 20% opacity -->
+    <color name="Heatmap_6">#0DB3FF11</color> <!-- 5% opacity -->
+
+    <!-- ............................................................ -->
+
+    <!-- Darkmode -->
+    <color name="background_darkmode">#3B3E3C</color> <!-- 5% opacity -->
+</resources>
