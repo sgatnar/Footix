@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:iconTint="@color/green_footix"
         android:icon="@drawable/navbar_session"
         android:id="@+id/session"
-        android:title="Session" />
+        android:title="Session"/>
     <item
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@drawable/navbar_home"
         android:id="@+id/home"
-        android:title="Home" />
+        android:title="Home"/>
     <item
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@drawable/navbar_settings"
         android:id="@+id/settings"
-        android:title="Settings" />
+        android:title="Settings"/>
+
 </menu>
