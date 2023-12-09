@@ -1,4 +1,8 @@
 <resources>
     <string name="app">Footix</string>
     <string name="app_name">Footix</string>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/green_footix</item>
+    </style>
 </resources>

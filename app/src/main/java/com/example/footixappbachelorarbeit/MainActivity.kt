@@ -1,7 +1,11 @@
 package com.example.footixappbachelorarbeit
 
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.os.Build
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,9 +25,11 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        changeStatusBarColor()
         replaceFragment(HomeFragment())
 
         binding.bottomNavigationView.changeColor(R.color.colorDefault, R.color.colorSelected)
+        binding.bottomNavigationView.selectedItemId = R.id.home
 
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -57,7 +63,11 @@ class MainActivity : AppCompatActivity() {
         itemIconTintList = colorStateList
         itemTextColor = colorStateList
     }
-
+    private fun changeStatusBarColor() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = resources.getColor(R.color.grey_toolbar_footix, theme)
+        }
+    }
     private fun replaceFragment(fragment: Fragment) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()

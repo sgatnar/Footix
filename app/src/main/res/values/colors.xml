@@ -2,11 +2,12 @@
 <resources>
 
     <!-- Whitemode -->
+    <color name="image_background">#195B7F63</color>
     <color name="black_footix">#FF000000</color>
     <color name="white_footix">#FFFFFFFF</color>
     <color name="green_footix">#5B7F63</color>
     <color name="grey_toolbar_footix">#353C37</color>
-    <color name="grey_background_footix">#CFCFCF</color>
+    <color name="grey_background_footix">#C3C3C3</color>
     <color name="red">#FF0000</color>
 
     <color name="colorDefault">@color/grey_background_footix</color>

@@ -6,4 +6,5 @@
 
     <!-- Default state -->
     <item android:color="@color/grey_background_footix" />
+
 </selector>
