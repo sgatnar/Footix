@@ -21,13 +21,13 @@
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
-        android:layout_width="404dp"
-        android:layout_height="67dp"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
         android:background="@color/grey_toolbar_footix"
         app:itemActiveIndicatorStyle="@drawable/custom_item_background"
         app:itemBackground="@color/grey_toolbar_footix"
-        app:itemTextColor="@color/grey_background_footix"
         app:itemIconTint="@color/grey_background_footix"
+        app:itemTextColor="@color/grey_background_footix"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
