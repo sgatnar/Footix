@@ -6,10 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import org.w3c.dom.Text
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,6 +29,16 @@ class SettingsFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
+        val listView: ListView = view.findViewById(R.id.settingsListView)
+
+        // Icons for the list
+        val iconList = listOf(R.drawable.baseline_person_settings, R.drawable.baseline_calendar, R.drawable.baseline_location, R.drawable.baseline_calendar, R.drawable.baseline_height, R.drawable.baseline_weight)
+        val items = listOf("Name", "Birthday", "Position", "Height", "Weight", "App notifications", "Darkmode")
+
+        // Create the adapter and set it to the ListView
+        val adapter = SettingsListViewAdapter(requireContext(), items)
+        listView.adapter = adapter
+
         // Find the Toolbar view
         val toolbar: Toolbar = view.findViewById(R.id.includedAppBarSettings)
         val textToolbar: TextView = view.findViewById(R.id.textOfIncludedAppBarSettings)
@@ -33,8 +48,7 @@ class SettingsFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
         backButton.setOnClickListener {
-            TODO()
-            //findNavController().navigate(R.id.fragment_home)
+            findNavController().navigateUp()
         }
 
         return view

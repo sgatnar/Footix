@@ -9,6 +9,7 @@
     <color name="grey_toolbar_footix">#353C37</color>
     <color name="grey_background_footix">#C3C3C3</color>
     <color name="red">#FF0000</color>
+    <color name="yellow_footix">#B3FF11</color>
 
     <color name="colorDefault">@color/grey_background_footix</color>
     <color name="colorSelected">@color/green_footix</color>
