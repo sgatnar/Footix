@@ -10,6 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.example.footixappbachelorarbeit"
         minSdk = 24
+        //noinspection ExpiredTargetSdkVersion
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -49,7 +50,9 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0")
     implementation("androidx.fragment:fragment-ktx:1.3.6")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0")
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

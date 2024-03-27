@@ -3,6 +3,10 @@
     <string name="app_name">Footix</string>
     <string name="settings">Settings</string>
     <string name="lastSession">Last Session</string>
+    <string name="placeholder">Placeholder</string>
+
+    <string name="generalError">Error: Please reopen Footix.</string>
+    <string name="toastConnectionToMQTT">Connected to network server.</string>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:statusBarColor">@color/green_footix</item>
