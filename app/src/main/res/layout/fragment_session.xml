@@ -10,22 +10,96 @@
 
     <include
         android:id="@+id/includedAppBarSession"
-        layout="@layout/appbar_custom"
+        layout="@layout/appbar_session"
+        android:text="@string/session"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.fragment.app.FragmentContainerView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/greenContainerSettings"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_background_green"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.75"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/includedAppBarSession" />
+        app:layout_constraintTop_toBottomOf="@+id/includedAppBarSession">
+
+        <com.example.footixappbachelorarbeit.viewModelLiveData.FootballFieldDrawingView
+            android:id="@+id/footballFieldDrawingView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/totalDistanceDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black_footix"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/greenContainerSettings"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="@+id/greenContainerSettings"
+        app:layout_constraintTop_toBottomOf="@+id/greenContainerSettings"
+        app:layout_constraintVertical_bias="0.216" />
+
+    <TextView
+        android:id="@+id/distance"
+        android:textColor="@color/black_footix"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/greenContainerSettings"
+        app:layout_constraintStart_toStartOf="@+id/greenContainerSettings"
+        app:layout_constraintTop_toBottomOf="@+id/totalDistanceDescription" />
+
+    <ImageView
+        android:id="@+id/infoIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/baseline_info_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/totalDistanceDescription"
+        app:layout_constraintTop_toTopOf="@+id/totalDistanceDescription" />
+
+    <ImageView
+        android:id="@+id/timeIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="22dp"
+        android:src="@drawable/baseline_timer"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@+id/totalDistanceDescription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/greenContainerSettings"
+        app:tint="@color/yellow_footix" />
+
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black_footix"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/timeIcon"
+        app:layout_constraintStart_toStartOf="@+id/timeIcon"
+        app:layout_constraintTop_toBottomOf="@+id/timeIcon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

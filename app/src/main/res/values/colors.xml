@@ -11,8 +11,8 @@
     <color name="red">#FF0000</color>
     <color name="yellow_footix">#B3FF11</color>
 
-    <color name="colorDefault">@color/grey_background_footix</color>
-    <color name="colorSelected">@color/green_footix</color>
+    <color name="colorDefaultNavBar">@color/grey_background_footix</color>
+    <color name="colorSelectedNavBar">@color/green_footix</color>
 
     <!-- Heatmap colors -->
     <color name="Heatmap_1">#B3FF11</color>

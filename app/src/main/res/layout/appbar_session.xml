@@ -19,12 +19,12 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/textOfIncludedAppBarSettings"
+                android:id="@+id/textOfIncludedAppBarSession"
+                android:text="@string/session"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
-                android:text="@string/settings"
                 android:textSize="24sp" />
 
             <ImageView
@@ -34,8 +34,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/arrow_back_icon_foreground"
-                app:layout_constraintBottom_toBottomOf="@+id/textOfIncludedAppBarSettings"
-                app:layout_constraintStart_toStartOf="@+id/textOfIncludedAppBarSettings"
+                app:layout_constraintBottom_toBottomOf="@+id/textOfIncludedAppBarSession"
+                app:layout_constraintStart_toStartOf="@+id/textOfIncludedAppBarSession"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="MissingConstraints" />
 
