@@ -18,10 +18,4 @@ class ViewModelFragmentHandler: ViewModel() {
             value = false
         }
     }
-
-    val sessionTime: MutableLiveData<Long> by lazy {
-        MutableLiveData<Long>().apply {
-            value = 0L
-        }
-    }
 }

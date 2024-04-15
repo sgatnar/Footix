@@ -1,14 +1,8 @@
 package com.example.footixappbachelorarbeit.ttn
 
-import android.app.Application
 import android.content.Context
 import android.util.Base64
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -37,41 +31,17 @@ class MQTTClient(val context: Context) {
         const val TAG = "AndroidMqttClient"
     }
 
+    interface DataListener {
+        fun onDataReceived(long: Double, lat: Double)
+    }
+
     fun connect(callback: IMqttActionListener, listener: DataListener) {
         dataListener = listener
+
         mqttAndroidClient = MqttAndroidClient(context, SERVER_URL_MQTT, USERNAME_MQTT)
         mqttAndroidClient.setCallback(object : MqttCallback {
             override fun messageArrived(topic: String?, message: MqttMessage?) {
-                if (topic != null && message != null) {
-                    try {
-                        val payload = String(message.payload)
-                        val uplinkMessage = JSONObject(payload)
-                        Log.d(TAG, "Received uplink message from TTN: $uplinkMessage")
-                        val frmPayloadBase64 = uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
-                        //val timestampTTN = uplinkMessage.getJSONObject("rx_metadata").getString("time")
-                        //Log.d(TAG, "Received uplink message from TTN: $timestampTTN")
-                        val frmPayloadBytes = Base64.decode(frmPayloadBase64, Base64.DEFAULT)
-
-                        if (frmPayloadBytes.size == 16) {  // Adjusted size to 12
-                            val longitudeBytes = frmPayloadBytes.copyOfRange(8, 16)
-                            val latitudeBytes = frmPayloadBytes.copyOfRange(0, 8)
-
-                            val longitudeBuffer = ByteBuffer.wrap(longitudeBytes).order(ByteOrder.LITTLE_ENDIAN)
-                            val latitudeBuffer = ByteBuffer.wrap(latitudeBytes).order(ByteOrder.LITTLE_ENDIAN)
-
-                            val receivedLongitude = longitudeBuffer.double
-                            val receivedLatitude = latitudeBuffer.double
-
-                            dataListener.onDataReceived(receivedLongitude, receivedLatitude)
-
-                        } else {
-                            Log.e(TAG, "Invalid payload size")
-                        }
-
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error parsing JSON or decoding frm_payload: ${e.message}")
-                    }
-                }
+                handlePayload(message)
             }
 
             override fun connectionLost(cause: Throwable?) {
@@ -94,8 +64,36 @@ class MQTTClient(val context: Context) {
         }
     }
 
-    interface DataListener {
-        fun onDataReceived(long: Double, lat: Double)
+    private fun handlePayload(message: MqttMessage?) {
+        try {
+            val payload = String(message?.payload ?: return)
+            val uplinkMessage = JSONObject(payload)
+            Log.d(TAG, "Uplinkmessage: $uplinkMessage")
+            val frmPayloadBase64 = uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
+            Log.d(TAG, "Payload: $frmPayloadBase64")
+
+            val frmPayloadBytes = Base64.decode(frmPayloadBase64, Base64.DEFAULT)
+
+            if (frmPayloadBytes.size == 16) {
+                val longitudeBytes = frmPayloadBytes.copyOfRange(8, 16)
+                val latitudeBytes = frmPayloadBytes.copyOfRange(0, 8)
+
+                val longitudeBuffer = ByteBuffer.wrap(longitudeBytes).order(ByteOrder.LITTLE_ENDIAN)
+                val latitudeBuffer = ByteBuffer.wrap(latitudeBytes).order(ByteOrder.LITTLE_ENDIAN)
+
+                val receivedLongitude = longitudeBuffer.double
+                Log.d(TAG, "receivedLongitude: $receivedLongitude")
+                val receivedLatitude = latitudeBuffer.double
+                Log.d(TAG, "receivedLatitude: $receivedLatitude")
+
+                dataListener.onDataReceived(receivedLongitude, receivedLatitude)
+            } else {
+                Log.e(TAG, "Error decoding payload")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e(TAG, "Error processing MQTT message: ${e.message}")
+        }
     }
 
     fun subscribeToTopic(topic: String, qos: Int = 0) {

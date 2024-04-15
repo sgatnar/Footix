@@ -23,10 +23,10 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="22dp"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_weight="0.36"
         android:background="@drawable/rounded_background_green"
         android:orientation="vertical"
-        app:layout_constraintHeight_percent="0.7">
+        app:layout_constraintHeight_percent="0.6">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imageProfile"

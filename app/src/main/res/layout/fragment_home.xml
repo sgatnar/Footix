@@ -54,7 +54,39 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/greenContainerLeft"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.harrywhewell.scrolldatepicker.DayScrollDatePicker
+                android:id="@+id/day_date_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                app:baseColor="@color/green_footix"
+                app:baseTextColor="@color/black_footix"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:selectedColor="@color/grey_toolbar_footix"
+                app:selectedTextColor="@color/yellow_footix"
+                app:showFullDate="false" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <ProgressBar
         android:id="@+id/progressBarMQTTConncetion"
@@ -69,21 +101,6 @@
         app:layout_constraintTop_toTopOf="@+id/greenContainer"
         app:layout_constraintWidth_percent="0.4"
         app:layout_constraintHeight_percent="0.4" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textColor="@color/black_footix"
-        android:textSize="64sp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
-        app:layout_constraintEnd_toEndOf="@+id/greenContainer"
-        app:layout_constraintHorizontal_bias="0.487"
-        app:layout_constraintStart_toStartOf="@+id/greenContainer"
-        app:layout_constraintTop_toTopOf="@+id/greenContainer"
-        app:layout_constraintVertical_bias="0.926" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/greenContainerLeft"

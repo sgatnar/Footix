@@ -17,6 +17,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.footixappbachelorarbeit.ttn.MQTTClient
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
 import java.util.Timer
@@ -94,6 +98,7 @@ class SessionFragment : Fragment() {
 
             alertDialog = AlertDialog.Builder(requireContext())
                 .setView(dialogView)
+                .setCancelable(false)
                 .create()
 
             val popupTitleSession = dialogView.findViewById<TextView>(R.id.popupTitle)
@@ -110,14 +115,26 @@ class SessionFragment : Fragment() {
 
             val endSessionButton = dialogView.findViewById<Button>(R.id.confirmButton)
             endSessionButton.text = getString(R.string.stopSession)
+            alertDialog.show()
+
             endSessionButton.setOnClickListener {
-                alertDialog.dismiss()
+
+                onDestroy()
+                viewModel.sessionTimerValue.value = 0
+
                 val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
                 fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
                 fragmentTransaction.commit()
-            }
 
-            alertDialog.show()
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(3000)
+                    viewModel.activeSession.value = false
+                    mqttClient.disconnect()
+                }
+
+                closePopup()
+
+            }
         }
 
         backButton.setOnClickListener {
@@ -138,8 +155,6 @@ class SessionFragment : Fragment() {
                 timeIcon.visibility = View.VISIBLE
                 timerText.visibility = View.VISIBLE
 
-               /* val formatedTime = viewModel.sessionTime.value?.let { formatTime(it) }
-                timerText.text = formatedTime*/
                 startSessionTimer()
             } else {
                 timeIcon.visibility = View.GONE
@@ -166,6 +181,7 @@ class SessionFragment : Fragment() {
             }
         }, object : MQTTClient.DataListener {
             override fun onDataReceived(long: Double, lat: Double) {
+
                 val data = 0.1f
                 Log.d("MyFragment", "Daten erhalten: $data")
                 distanceInMeter += data
@@ -201,7 +217,7 @@ class SessionFragment : Fragment() {
     }
 
     private fun showPopup() {
-        val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
+        val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_4, null)
 
         alertDialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -214,7 +230,15 @@ class SessionFragment : Fragment() {
         val popupDescriptionTextSession = dialogView.findViewById<TextView>(R.id.popupText)
         popupDescriptionTextSession.text = getString(R.string.startSesssionDescriptionText)
 
-        val startSessionButton = dialogView.findViewById<Button>(R.id.cancelButton)
+        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+        cancelButton.text = getString(R.string.cancel)
+        cancelButton.setOnClickListener {
+            val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
+            fragmentTransaction.commit()
+            closePopup()
+        }
+        val startSessionButton = dialogView.findViewById<Button>(R.id.confirmButton)
         startSessionButton.text = getString(R.string.startSession)
         startSessionButton.setOnClickListener {
             closePopup()

@@ -2,11 +2,17 @@
     <string name="app">Footix</string>
     <string name="app_name">Footix</string>
     <string name="settings">SETTINGS</string>
+    <string name="distance">DISTANCE</string>
+    <string name="maxSpeed">MAX SPEED</string>
+    <string name="runTime">RUNNING TIME</string>
     <string name="close">CLOSE</string>
     <string name="cancel">CANCEL</string>
     <string name="save">SAVE</string>
     <string name="placeholder">Placeholder</string>
     <string name="initKilometers">0.00</string>
+    <string name="calnderInitDistance">0.00 km</string>
+    <string name="calendarInitMaxSpeed">0 km/h</string>
+    <string name="calendarInitRunTime"> 0 min</string>
     <string name="startSessionButton">START SESSION</string>
     <string name="highscoreButton">HIGHSCORE</string>
     <string name="totalDistanceDescription">TOTAL DISTANCE</string>

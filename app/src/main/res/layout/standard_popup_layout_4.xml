@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp"
+    android:background="@color/grey_background_footix">
 
     <TextView
         android:id="@+id/popupTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
         android:paddingBottom="16dp"/>
@@ -18,7 +19,7 @@
         android:id="@+id/popupText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:gravity="center"
         android:paddingBottom="16dp"/>
 
@@ -32,20 +33,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="center_horizontal">
 
         <Button
             android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/cancel" />
+            android:layout_marginEnd="8dp"/>
 
         <Button
             android:id="@+id/confirmButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/stopSession" />
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

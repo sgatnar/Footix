@@ -1,8 +1,10 @@
 package com.example.footixappbachelorarbeit
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,15 +17,23 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.footixappbachelorarbeit.adapters.CalendarAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.snackbar.Snackbar
+import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
+import com.harrywhewell.scrolldatepicker.OnDateSelectedListener
+import java.time.LocalDate
+
 
 class HomeFragment : Fragment(){
 
@@ -35,6 +45,11 @@ class HomeFragment : Fragment(){
     private lateinit var syncButton: ImageButton
     private lateinit var progressBar: ProgressBar
     lateinit var viewModel: ViewModelFragmentHandler
+    lateinit var calendar: DayScrollDatePicker
+    lateinit var currentDate: LocalDate
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: CalendarAdapter
+    private lateinit var items: List<CalendarAdapter.CalendarItem>
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -48,6 +63,7 @@ class HomeFragment : Fragment(){
         viewModel = ViewModelProvider(requireActivity()).get(ViewModelFragmentHandler::class.java)
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +76,21 @@ class HomeFragment : Fragment(){
         greenContainerRight = view.findViewById(R.id.greenContainerRight)
         greyContainer = view.findViewById(R.id.greyContainer)
         greenContainer = view.findViewById(R.id.greenContainer)
+        calendar = view.findViewById(R.id.day_date_picker)
+
+        initCalendar()
+
+        recyclerView = view.findViewById(R.id.recyclerView)
+
+        items = listOf(
+            CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calnderInitDistance), 50),
+            CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 75),
+            CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 25)
+        )
+
+        adapter = CalendarAdapter(items)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         hideProgressBar()
 
@@ -70,6 +101,22 @@ class HomeFragment : Fragment(){
         startSessionOrHighscore(greenContainerRight, SettingsFragment())
 
         return view
+    }
+
+    private fun initCalendar() {
+        currentDate = LocalDate.now()
+
+        val yearStart = currentDate.year
+        val monthStart = currentDate.monthValue
+        val dayStart = currentDate.dayOfMonth
+
+        calendar.setStartDate(1, 1, 2024)
+        calendar.setEndDate(dayStart, monthStart, yearStart)
+        calendar.getSelectedDate(OnDateSelectedListener { date ->
+            if (date != null) {
+                Log.e("Selected item: ", date.toString())
+            }
+        })
     }
 
     private fun HomeFragment.startSessionOrHighscore(greenContainer: ConstraintLayout, fragment: Fragment) {
@@ -133,9 +180,9 @@ class HomeFragment : Fragment(){
     class CustomPopupDialogFragment : DialogFragment() {
 
         private val rankingList = listOf(
-            RankingItem(1, "10 km", "01-04-2024"),
-            RankingItem(2, "8 km", "02-04-2024"),
-            RankingItem(3, "6 km", "03-04-2024"),
+            RankingItem(1, "10 km", "01.04.2024"),
+            RankingItem(2, "8 km", "02.04.2024"),
+            RankingItem(3, "6 km", "03.04.2024"),
             // Add more items as needed
         )
 
