@@ -22,17 +22,20 @@
     <string name="stopSession">STOP CURRENT SESSION</string>
     <string name="startSession">START SESSION</string>
     <string name="startingNewSession">START A NEW SESSION?</string>
+    <string name="succesfullSession">The session has been saved.</string>
+    <string name="noSession">No session for this day.</string>
     <string name="highscore">HIGHSCORE</string>
     <string name="startSesssionDescriptionText">Please position yourself in the middle of the field and press the START SESSION button.</string>
 
-    <string name="generalError">Error: Please reopen Footix</string>
+    <string name="generalError">Error: Please reopen Footix.</string>
     <string name="noInternet">NO INTERNET CONNECTION</string>
+    <string name="ConnectToInternet">No internet: Please connect to the internet and try again.</string>
     <string name="retry">Retry</string>
-    <string name="pleaseConnectAgain">Please connect to internet and retry</string>
-    <string name="toastConnectionToMQTTSuccessfull">Succcessfully connected to network server</string>
-    <string name="toastConnectionToMQTTError">Connection to network server failed, please retry</string>
-    <string name="toastRestartApp">Connection error, please restart Footix</string>
-    <string name="activeSession">Your already have an active session.</string>
+    <string name="pleaseConnectAgain">Please connect to internet and retry.</string>
+    <string name="toastConnectionToMQTTSuccessfull">Succcessfully connected to network server.</string>
+    <string name="toastConnectionToMQTTError">Connection to network server failed, please retry.</string>
+    <string name="toastRestartApp">Connection error, please restart Footix.</string>
+    <string name="activeSession">You already have an ongoing session.</string>
     <string name="sessionInfo">INFORMATION ABOUT SESSION</string>
     <string name="startingDate">Starting Date: </string>
 

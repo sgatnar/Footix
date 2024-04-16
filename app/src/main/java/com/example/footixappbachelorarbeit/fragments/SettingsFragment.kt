@@ -13,6 +13,8 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 private const val ARG_PARAM1 = "param1"
@@ -20,14 +22,14 @@ private const val ARG_PARAM2 = "param2"
 
 class SettingsFragment : Fragment() {
 
+    lateinit var viewModel: ViewModelFragmentHandler
     private lateinit var view: View
     private lateinit var toolbar: Toolbar
     private lateinit var textToolbar: TextView
     private lateinit var nameDescription: TextView
     private lateinit var sessionText: TextView
+    private lateinit var amountSession: TextView
     private lateinit var backButton: ImageView
-
-    // Initialize items as MutableList<String>
     private val items: MutableList<String> = mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
 
     override fun onCreateView(
@@ -37,10 +39,16 @@ class SettingsFragment : Fragment() {
     ): View? {
         view = inflater.inflate(R.layout.fragment_settings, container, false)
 
+        viewModel = ViewModelProvider(requireActivity()).get(ViewModelFragmentHandler::class.java)
+
         initViews()
         setupListView()
         setupAppBar()
         setupBackButton()
+
+        viewModel.amountOfSession.observe(this) { value ->
+            amountSession.text = viewModel.amountOfSession.value.toString()
+        }
 
         return view
     }
@@ -51,6 +59,7 @@ class SettingsFragment : Fragment() {
         backButton = view.findViewById(R.id.backButton)
         nameDescription = view.findViewById(R.id.nameDescriptionGreenContainerSettings)
         sessionText = view.findViewById(R.id.sessionTextGreenContainerSettings)
+        amountSession = view.findViewById(R.id.amountSessionCounterGreenContainer)
     }
 
     private fun setupListView() {
@@ -64,7 +73,6 @@ class SettingsFragment : Fragment() {
             R.drawable.baseline_weight
         )
 
-        // Pass items as MutableList<String>
         val adapter = SettingsListViewAdapter(requireContext(), items, iconList)
         listView.adapter = adapter
     }

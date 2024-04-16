@@ -75,6 +75,9 @@ class MainActivity : AppCompatActivity() {
         val popupNoInternetTitle = dialogView.findViewById<TextView>(R.id.popupTitle)
         popupNoInternetTitle.text = getString(R.string.noInternet)
 
+        val popupNoInternetText= dialogView.findViewById<TextView>(R.id.popupText)
+        popupNoInternetText.text = getString(R.string.ConnectToInternet)
+
         val retryInternetConnectionButton = dialogView.findViewById<Button>(R.id.cancelButton)
         retryInternetConnectionButton.text = getString(R.string.retry)
         retryInternetConnectionButton.setOnClickListener {

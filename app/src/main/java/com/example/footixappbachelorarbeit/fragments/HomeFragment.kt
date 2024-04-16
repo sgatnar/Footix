@@ -28,16 +28,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.footixappbachelorarbeit.adapters.CalendarAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
+import com.example.footixappbachelorarbeit.viewModelLiveData.Session
+import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.snackbar.Snackbar
 import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
 import com.harrywhewell.scrolldatepicker.OnDateSelectedListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.lang.reflect.Type
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 class HomeFragment : Fragment(){
 
     private lateinit var view: View
+    private lateinit var appDB: SessionDatabase
     private lateinit var greenContainerLeft: ConstraintLayout
     private lateinit var greenContainerRight: ConstraintLayout
     private lateinit var greyContainer: ConstraintLayout
@@ -61,6 +74,7 @@ class HomeFragment : Fragment(){
         arguments?.let {
         }
         viewModel = ViewModelProvider(requireActivity()).get(ViewModelFragmentHandler::class.java)
+        appDB = SessionDatabase.getDatabase(requireContext())
     }
 
     @SuppressLint("ResourceAsColor")
@@ -100,7 +114,18 @@ class HomeFragment : Fragment(){
         startSessionOrHighscore(greenContainerLeft, SessionFragment())
         startSessionOrHighscore(greenContainerRight, SettingsFragment())
 
+        syncButton.setOnClickListener{
+            reloadFragment()
+            viewModel.refreshData()
+        }
+
         return view
+    }
+
+    private fun reloadFragment() {
+        val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
+        fragmentTransaction.commit()
     }
 
     private fun initCalendar() {
@@ -114,7 +139,12 @@ class HomeFragment : Fragment(){
         calendar.setEndDate(dayStart, monthStart, yearStart)
         calendar.getSelectedDate(OnDateSelectedListener { date ->
             if (date != null) {
-                Log.e("Selected item: ", date.toString())
+
+                val formatter = SimpleDateFormat("yyyy-MM-dd")
+                val formattedDate = formatter.format(date.time)
+
+                // Use the formatted date
+                readSessionDataFromDB(formattedDate)
             }
         })
     }
@@ -160,6 +190,35 @@ class HomeFragment : Fragment(){
 
                  snackbar.show()
             }
+        }
+    }
+
+    fun readSessionDataFromDB(selectedDate: String) {
+
+        GlobalScope.launch(Dispatchers.IO) {
+
+            val session = appDB.sessionDao().getDataByDate(selectedDate)
+
+            if (session != null) {
+
+                Log.e("Sessions: ", "This is the current session $session")
+
+                val date = session.currentDate
+                val distance = session.totalDistance
+                val speed = session.maxSpeed
+                val time = session.runTime
+
+            } else {
+                /*val snackbar = Snackbar.make(
+                    view.findViewById(R.id.fragment_home), // Replace with your layout ID
+                    resources.getString(R.string.noSession),
+                    Snackbar.LENGTH_SHORT
+                ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
+
+                snackbar.show()*/
+                Log.e("Error: ", "No session found for the current date")
+            }
+
         }
     }
 

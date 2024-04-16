@@ -12,19 +12,29 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.ColumnInfo
+import com.example.footixappbachelorarbeit.databinding.ActivityMainBinding
 import com.example.footixappbachelorarbeit.ttn.MQTTClient
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
+import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.properties.Delegates
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -33,7 +43,7 @@ class SessionFragment : Fragment() {
 
     lateinit var viewModel: ViewModelFragmentHandler
     private lateinit var view: View
-    private lateinit var currentSession: Session
+    private lateinit var appDB: SessionDatabase
     private var timer: Timer? = null
 
     private lateinit var backButton: ImageView
@@ -44,6 +54,7 @@ class SessionFragment : Fragment() {
     private lateinit var timeIcon: ImageView
     private lateinit var timerText: TextView
     private var distanceInMeter: Float = 0.00f
+    private var currentTimeInSeconds by Delegates.notNull<Long>()
     private lateinit var alertDialog: AlertDialog
 
     // MQTT inits
@@ -57,6 +68,7 @@ class SessionFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
         }
+        appDB = SessionDatabase.getDatabase(requireContext())
         viewModel = ViewModelProvider(requireActivity()).get(ViewModelFragmentHandler::class.java)
 
         if (viewModel.activeMQTTConnection.value == false){
@@ -70,7 +82,6 @@ class SessionFragment : Fragment() {
                 showPopup()
             } else if (isActive) {
                 closePopup()
-                //startNewSession()
             }
         }
     }
@@ -119,6 +130,10 @@ class SessionFragment : Fragment() {
 
             endSessionButton.setOnClickListener {
 
+                /*CoroutineScope(Dispatchers.IO).launch {
+                    appDB.sessionDao().clearSessions()
+                }*/
+
                 onDestroy()
                 viewModel.sessionTimerValue.value = 0
 
@@ -133,7 +148,7 @@ class SessionFragment : Fragment() {
                 }
 
                 closePopup()
-
+                writeSessionDataToDB()
             }
         }
 
@@ -161,6 +176,38 @@ class SessionFragment : Fragment() {
                 timerText.visibility = View.GONE
             }
         }
+    }
+
+    fun writeSessionDataToDB() {
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
+            val distance = 1.1f
+            val speed = 2.2f
+            var time = currentTimeInSeconds
+            var timeFormated = formatTime(time)
+
+            val session = Session(null, date, distance, speed, timeFormated)
+            appDB.sessionDao().insert(session)
+
+            val numSessions = appDB.sessionDao().getCount()
+
+            viewModel.amountOfSession.postValue(numSessions)
+            delay(5000)
+            Log.d("SessionDao", "Number of sessions after insertion: ${viewModel.amountOfSession.value}")
+        }
+
+        val currentView = view
+        val currentContext = requireContext()
+
+        val snackbar = Snackbar.make(
+            currentView!!,
+            currentContext.resources.getString(R.string.succesfullSession),
+            Snackbar.LENGTH_SHORT
+        ).setBackgroundTint(currentContext.getResources().getColor(R.color.grey_background_footix, null))
+            .setTextColor(currentContext.getResources().getColor(R.color.black_footix)) // Optional: Set success color
+
+        snackbar.show()
     }
 
     private fun connectToMQTT() {
@@ -248,22 +295,18 @@ class SessionFragment : Fragment() {
         alertDialog.show()
     }
 
-    /*private fun startNewSession() {
-        currentSession = Session.createNewSession()
-    }*/
-
     private fun startSessionTimer() {
-        timer?.cancel()  // Cancel previous timer to avoid multiple timers running simultaneously
+        timer?.cancel()
         timer = Timer()
 
-        var currentTimeInSeconds = viewModel.sessionTimerValue.value ?: 0L // Get the current time from ViewModel
+        currentTimeInSeconds = viewModel.sessionTimerValue.value ?: 0L
 
         timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 activity?.runOnUiThread {
                     currentTimeInSeconds++
                     timerText.text = formatTime(currentTimeInSeconds)
-                    viewModel.sessionTimerValue.value = currentTimeInSeconds  // Update ViewModel with the current time
+                    viewModel.sessionTimerValue.value = currentTimeInSeconds
                 }
             }
         }, 0, 1000)

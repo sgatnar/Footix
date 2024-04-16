@@ -15,9 +15,15 @@ interface SessionDao {
     @Query("SELECT * FROM session")
     fun getAllSessions(): LiveData<List<Session>>
 
-    @Query("SELECT * FROM session WHERE current_date LIKE :date LIMIT 1")
-    suspend fun findDataByDate(date: String): Session
+    @Query("SELECT COUNT(*) FROM session")
+    suspend fun getCount(): Int
+
+    @Query("SELECT * FROM session WHERE current_date LIKE :date ORDER BY id DESC LIMIT 1")
+    suspend fun getDataByDate(date: String): Session
 
     @Delete
     suspend fun delete(session: Session)
+
+    @Query("DELETE FROM session")
+    suspend fun clearSessions()
 }
