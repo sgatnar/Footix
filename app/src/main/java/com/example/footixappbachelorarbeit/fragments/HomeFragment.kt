@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,7 +16,6 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -28,24 +26,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.footixappbachelorarbeit.adapters.CalendarAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
-import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.snackbar.Snackbar
 import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
-import com.harrywhewell.scrolldatepicker.OnDateSelectedListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.lang.reflect.Type
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-
 
 class HomeFragment : Fragment(){
 
@@ -81,7 +71,7 @@ class HomeFragment : Fragment(){
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         view = inflater.inflate(R.layout.fragment_home, container, false)
         syncButton = view.findViewById(R.id.syncButton)
@@ -97,9 +87,9 @@ class HomeFragment : Fragment(){
         recyclerView = view.findViewById(R.id.recyclerView)
 
         items = listOf(
-            CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calnderInitDistance), 50),
-            CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 75),
-            CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 25)
+            CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 100),
+            CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 100),
+            CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)
         )
 
         adapter = CalendarAdapter(items)
@@ -108,24 +98,17 @@ class HomeFragment : Fragment(){
 
         hideProgressBar()
 
-        progressBar.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.black_footix))
-        progressBar.indeterminateTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.black_footix))
+        progressBar.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
+        progressBar.indeterminateTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
 
         startSessionOrHighscore(greenContainerLeft, SessionFragment())
         startSessionOrHighscore(greenContainerRight, SettingsFragment())
 
         syncButton.setOnClickListener{
             reloadFragment()
-            viewModel.refreshData()
         }
 
         return view
-    }
-
-    private fun reloadFragment() {
-        val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
-        fragmentTransaction.commit()
     }
 
     private fun initCalendar() {
@@ -137,7 +120,7 @@ class HomeFragment : Fragment(){
 
         calendar.setStartDate(1, 1, 2024)
         calendar.setEndDate(dayStart, monthStart, yearStart)
-        calendar.getSelectedDate(OnDateSelectedListener { date ->
+        calendar.getSelectedDate { date ->
             if (date != null) {
 
                 val formatter = SimpleDateFormat("yyyy-MM-dd")
@@ -146,7 +129,7 @@ class HomeFragment : Fragment(){
                 // Use the formatted date
                 readSessionDataFromDB(formattedDate)
             }
-        })
+        }
     }
 
     private fun HomeFragment.startSessionOrHighscore(greenContainer: ConstraintLayout, fragment: Fragment) {
@@ -194,32 +177,55 @@ class HomeFragment : Fragment(){
     }
 
     fun readSessionDataFromDB(selectedDate: String) {
-
         GlobalScope.launch(Dispatchers.IO) {
 
             val session = appDB.sessionDao().getDataByDate(selectedDate)
 
             if (session != null) {
-
-                Log.e("Sessions: ", "This is the current session $session")
+                Log.e("1: Sessions: ", "This is the current session $session")
 
                 val date = session.currentDate
-                val distance = session.totalDistance
-                val speed = session.maxSpeed
-                val time = session.runTime
+                val distanceInt = session.totalDistance?.toInt()
+                val distance = session.totalDistance.toString() + " km"
 
+                val speedInt = session.maxSpeed?.toInt()
+                val speed = session.maxSpeed.toString() + " km/h"
+
+                val total = session.runTime
+                val parts = total?.split(":")
+                val minutes = if (parts?.size ?: 0 >= 2) parts?.get(1)?.toInt() else 0
+                val seconds = if (parts?.size ?: 0 >= 3) parts?.get(2)?.toInt() else 0
+                val time = String.format("%02d:%02d", minutes, seconds) + " min"
+
+                items = listOf(
+                    CalendarAdapter.CalendarItem(getString(R.string.distance), distance, distanceInt, 20),
+                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), speed, speedInt, 40),
+                    CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minutes, 100)
+                )
+
+                items.forEachIndexed { index, item ->
+                    Log.d("CalendarItem[$index]", "Description: ${item.description}, Value: ${item.value}, Progress: ${item.progress}, Max Progress: ${item.maxProgress}")
+                }
             } else {
-                /*val snackbar = Snackbar.make(
-                    view.findViewById(R.id.fragment_home), // Replace with your layout ID
-                    resources.getString(R.string.noSession),
-                    Snackbar.LENGTH_SHORT
-                ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
-
-                snackbar.show()*/
+                items = listOf(
+                    CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 20), // Max progress set to 100
+                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 40),   // Max progress set to 150
+                    CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)       // Max progress set to 50
+                )
                 Log.e("Error: ", "No session found for the current date")
             }
-
+            withContext(Dispatchers.Main) {
+                adapter = CalendarAdapter(items)
+                recyclerView.adapter = adapter
+                recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            }
         }
+    }
+
+    private fun reloadFragment() {
+        val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
+        fragmentTransaction.commit()
     }
 
     private fun showHighScorePopup() {
@@ -242,7 +248,6 @@ class HomeFragment : Fragment(){
             RankingItem(1, "10 km", "01.04.2024"),
             RankingItem(2, "8 km", "02.04.2024"),
             RankingItem(3, "6 km", "03.04.2024"),
-            // Add more items as needed
         )
 
         override fun onCreateView(

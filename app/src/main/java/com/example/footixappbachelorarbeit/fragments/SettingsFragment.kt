@@ -81,7 +81,8 @@ class SettingsFragment : Fragment() {
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         nameDescription.text = getString(R.string.developerName)
-        sessionText.text = getString(R.string.session)
+
+        sessionText.text = getString(R.string.sessions)
     }
 
     private fun setupBackButton() {

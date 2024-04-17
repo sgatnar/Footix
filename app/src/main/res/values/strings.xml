@@ -10,7 +10,7 @@
     <string name="save">SAVE</string>
     <string name="placeholder">Placeholder</string>
     <string name="initKilometers">0.00</string>
-    <string name="calnderInitDistance">0.00 km</string>
+    <string name="calenderInitDistance">0.00 km</string>
     <string name="calendarInitMaxSpeed">0 km/h</string>
     <string name="calendarInitRunTime"> 0 min</string>
     <string name="startSessionButton">START SESSION</string>
@@ -21,6 +21,7 @@
     <string name="endSession">Do you want to end the session?</string>
     <string name="stopSession">STOP CURRENT SESSION</string>
     <string name="startSession">START SESSION</string>
+    <string name="sessions">SESSION(S)</string>
     <string name="startingNewSession">START A NEW SESSION?</string>
     <string name="succesfullSession">The session has been saved.</string>
     <string name="noSession">No session for this day.</string>

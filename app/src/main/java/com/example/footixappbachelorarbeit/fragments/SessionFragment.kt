@@ -182,8 +182,8 @@ class SessionFragment : Fragment() {
 
         GlobalScope.launch(Dispatchers.IO) {
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
-            val distance = 1.1f
-            val speed = 2.2f
+            val distance = 5.5f
+            val speed = 23f
             var time = currentTimeInSeconds
             var timeFormated = formatTime(time)
 

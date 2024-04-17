@@ -81,7 +81,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
@@ -93,8 +93,8 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:progressTint="@color/black_footix"
-        android:foregroundTint="@color/black_footix"
+        android:progressTint="@color/yellow_footix"
+        android:foregroundTint="@color/yellow_footix"
         app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
         app:layout_constraintEnd_toEndOf="@+id/bannerImage"
         app:layout_constraintStart_toStartOf="@+id/bannerImage"

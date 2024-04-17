@@ -26,12 +26,13 @@ class CalendarAdapter(private val items: List<CalendarItem>) : RecyclerView.Adap
 
         holder.descriptionTextView.text = item.description
         holder.valueTextView.text = item.value
-        holder.progressBar.progress = item.progress
+        holder.progressBar.max = item.maxProgress
+        holder.progressBar.progress = item.progress!!
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    data class CalendarItem(val description: String, val value: String, val progress: Int)
+    data class CalendarItem(val description: String, val value: String, val progress: Int?, val maxProgress: Int)
 }
