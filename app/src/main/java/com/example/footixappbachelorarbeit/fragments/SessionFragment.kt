@@ -12,11 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.ColumnInfo
-import com.example.footixappbachelorarbeit.databinding.ActivityMainBinding
 import com.example.footixappbachelorarbeit.ttn.MQTTClient
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
@@ -27,9 +23,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Timer
@@ -71,7 +67,7 @@ class SessionFragment : Fragment() {
         appDB = SessionDatabase.getDatabase(requireContext())
         viewModel = ViewModelProvider(requireActivity()).get(ViewModelFragmentHandler::class.java)
 
-        if (viewModel.activeMQTTConnection.value == false){
+        if (viewModel.activeMQTTConnection.value == false) {
             connectToMQTT()
         }
 
@@ -137,7 +133,8 @@ class SessionFragment : Fragment() {
                 onDestroy()
                 viewModel.sessionTimerValue.value = 0
 
-                val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
+                val fragmentTransaction =
+                    requireActivity().supportFragmentManager.beginTransaction()
                 fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
                 fragmentTransaction.commit()
 
@@ -194,7 +191,10 @@ class SessionFragment : Fragment() {
 
             viewModel.amountOfSession.postValue(numSessions)
             delay(5000)
-            Log.d("SessionDao", "Number of sessions after insertion: ${viewModel.amountOfSession.value}")
+            Log.d(
+                "SessionDao",
+                "Number of sessions after insertion: ${viewModel.amountOfSession.value}"
+            )
         }
 
         val currentView = view
@@ -204,8 +204,12 @@ class SessionFragment : Fragment() {
             currentView!!,
             currentContext.resources.getString(R.string.succesfullSession),
             Snackbar.LENGTH_SHORT
-        ).setBackgroundTint(currentContext.getResources().getColor(R.color.grey_background_footix, null))
-            .setTextColor(currentContext.getResources().getColor(R.color.black_footix)) // Optional: Set success color
+        ).setBackgroundTint(
+            currentContext.getResources().getColor(R.color.grey_background_footix, null)
+        )
+            .setTextColor(
+                currentContext.getResources().getColor(R.color.black_footix)
+            ) // Optional: Set success color
 
         snackbar.show()
     }
@@ -241,7 +245,20 @@ class SessionFragment : Fragment() {
     @SuppressLint("MissingInflatedId")
     private fun dialogInformation() {
         infoButton.setOnClickListener {
-            val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
+            mqttClient.publish(
+                TOPIC_DOWNLINK, JSONObject(
+                    """{
+  "downlinks": [
+    {
+      "f_port": 1,
+      "frm_payload": "AQ==",
+      "priority": "NORMAL"
+    }
+  ]
+}"""
+                )
+            )
+            /*val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
 
             alertDialog = AlertDialog.Builder(requireContext())
                 .setView(dialogView)
@@ -259,7 +276,7 @@ class SessionFragment : Fragment() {
                 closePopup()
             }
 
-            alertDialog.show()
+            alertDialog.show()*/
         }
     }
 

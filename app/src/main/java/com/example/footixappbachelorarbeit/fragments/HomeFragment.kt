@@ -126,7 +126,6 @@ class HomeFragment : Fragment(){
                 val formatter = SimpleDateFormat("yyyy-MM-dd")
                 val formattedDate = formatter.format(date.time)
 
-                // Use the formatted date
                 readSessionDataFromDB(formattedDate)
             }
         }
@@ -179,6 +178,7 @@ class HomeFragment : Fragment(){
     fun readSessionDataFromDB(selectedDate: String) {
         GlobalScope.launch(Dispatchers.IO) {
 
+            Log.e("readSessionFromDB Methode", "date: $selectedDate")
             val session = appDB.sessionDao().getDataByDate(selectedDate)
 
             if (session != null) {
