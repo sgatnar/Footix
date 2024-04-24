@@ -61,7 +61,7 @@ class SettingsListViewAdapter(
     private fun showEditTextDialog(position: Int, textView: TextView) {
         val editText = EditText(context)
         editText.setText(items[position])
-        editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(15))  // Limit input to 15 characters
+        editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(15))
 
         val dialog = AlertDialog.Builder(context)
             .setTitle("Edit ${items[position]}")

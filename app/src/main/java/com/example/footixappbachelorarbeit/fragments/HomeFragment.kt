@@ -136,7 +136,7 @@ class HomeFragment : Fragment(){
             if (greenContainer == greenContainerLeft) {
                 if (viewModel.activeSession.value == true){
                     val snackbar = Snackbar.make(
-                        view.findViewById(R.id.fragment_home), // Replace with your layout ID
+                        view.findViewById(R.id.fragment_home),
                         resources.getString(R.string.activeSession),
                         Snackbar.LENGTH_SHORT
                     ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
@@ -165,10 +165,10 @@ class HomeFragment : Fragment(){
                 fragmentTransaction.commit()
 
                  val snackbar = Snackbar.make(
-                     view.findViewById(R.id.fragment_home), // Replace with your layout ID
+                     view.findViewById(R.id.fragment_home),
                      resources.getString(R.string.toastRestartApp),
                      Snackbar.LENGTH_SHORT
-                 ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
+                 ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix))
 
                  snackbar.show()
             }

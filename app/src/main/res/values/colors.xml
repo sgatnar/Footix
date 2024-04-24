@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Whitemode -->
+    <!-- Whitemode colors -->
     <color name="image_background">#195B7F63</color>
     <color name="black_footix">#FF000000</color>
     <color name="white_footix">#FFFFFFFF</color>

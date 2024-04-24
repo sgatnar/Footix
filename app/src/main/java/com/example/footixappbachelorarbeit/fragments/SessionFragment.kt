@@ -37,6 +37,13 @@ private const val ARG_PARAM2 = "param2"
 
 class SessionFragment : Fragment() {
 
+    // MQTT inits
+    private lateinit var mqttClient: MQTTClient
+    val TOPIC_UPLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/up"
+    val TOPIC_DOWNLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/down/push"
+    var subscribedUplink: Boolean = false
+    var subscribedDownlink: Boolean = false
+
     lateinit var viewModel: ViewModelFragmentHandler
     private lateinit var view: View
     private lateinit var appDB: SessionDatabase
@@ -49,16 +56,11 @@ class SessionFragment : Fragment() {
     private lateinit var infoButton: ImageView
     private lateinit var timeIcon: ImageView
     private lateinit var timerText: TextView
-    private var distanceInMeter: Float = 0.00f
+    var totalDistance: Double = 0.0
+    var previousLong: Double? = null
+    var previousLat: Double? = null
     private var currentTimeInSeconds by Delegates.notNull<Long>()
     private lateinit var alertDialog: AlertDialog
-
-    // MQTT inits
-    private lateinit var mqttClient: MQTTClient
-    val TOPIC_UPLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/up"
-    val TOPIC_DOWNLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/down/push"
-    var subscribedUplink: Boolean = false
-    var subscribedDownlink: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -179,7 +181,7 @@ class SessionFragment : Fragment() {
 
         GlobalScope.launch(Dispatchers.IO) {
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
-            val distance = 5.5f
+            val distance = "%.2f".format(totalDistance).toDouble()
             val speed = 23f
             var time = currentTimeInSeconds
             var timeFormated = formatTime(time)
@@ -209,56 +211,86 @@ class SessionFragment : Fragment() {
         )
             .setTextColor(
                 currentContext.getResources().getColor(R.color.black_footix)
-            ) // Optional: Set success color
+            )
 
         snackbar.show()
     }
 
     private fun connectToMQTT() {
         mqttClient = MQTTClient(requireContext())
-        mqttClient.connect(object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("MQTT", "Connection successful...${viewModel.activeMQTTConnection.value}")
-                if (!subscribedUplink) {
-                    mqttClient.subscribeToTopic(TOPIC_UPLINK, 0)
+        mqttClient.connect(
+            object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Log.d("MQTT", "Connection successful...${viewModel.activeMQTTConnection.value}")
+                    if (!subscribedUplink) {
+                        mqttClient.subscribeToTopic(TOPIC_UPLINK, 0)
+                    }
+                    if (!subscribedDownlink) {
+                        mqttClient.subscribeToTopic(TOPIC_DOWNLINK, 0)
+                    }
                 }
-                if (!subscribedDownlink) {
-                    mqttClient.subscribeToTopic(TOPIC_DOWNLINK, 0)
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Log.e("MQTT", "Connection failure", exception)
+                }
+            },
+            object : MQTTClient.DataListener {
+
+                override fun onDataReceived(long: Double, lat: Double) {
+
+                    mqttClient.publish(
+                        TOPIC_DOWNLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "AQ==","priority": "NORMAL"}]}""")
+                    )
+
+                    if (long != null && lat != null) {
+                        val formattedDistance = calculateDistance(long, lat)
+                        totalDistance += formattedDistance
+                        val formattedDistanceMeters = String.format("%.2f", formattedDistance)
+
+                        Log.e("Distance", "Distance in meters: $formattedDistance m")
+                        Log.e("Total Distance", "Distance in meters: $totalDistance m")
+                        val formattedTotalDistance = String.format("%.2f", totalDistance)
+
+                        distance.text = "$formattedTotalDistance km"
+                    }else{
+                        Log.e("Calculation Distance Error", "Calculation of distance is not possible")
+                    }
                 }
             }
+        )
+    }
 
-            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.e("MQTT", "Connection failure", exception)
-            }
-        }, object : MQTTClient.DataListener {
-            override fun onDataReceived(long: Double, lat: Double) {
+    fun calculateDistance(currentLong: Double, currentLat: Double): Double {
 
-                val data = 0.1f
-                Log.d("MyFragment", "Daten erhalten: $data")
-                distanceInMeter += data
-                val formattedDistance = String.format("%.2f", distanceInMeter)
-                distance.text = "$formattedDistance km"
-            }
-        })
+        val earthRadius = 6371.0
+
+        if (previousLat == null || previousLong == null || previousLong == 0.00 || previousLat == 0.0) {
+            previousLat = currentLat
+            previousLong = currentLong
+            distance.text = "Init phase"
+            return 0.0
+        }
+
+        val deltaLat = Math.toRadians(currentLat - previousLat!!)
+        val deltaLon = Math.toRadians(currentLong - previousLong!!)
+
+        val a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(Math.toRadians(previousLat!!)) * Math.cos(Math.toRadians(currentLat)) *
+                Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2)
+
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+        previousLat = currentLat
+        previousLong = currentLong
+
+        return earthRadius * c
     }
 
     @SuppressLint("MissingInflatedId")
     private fun dialogInformation() {
         infoButton.setOnClickListener {
-            mqttClient.publish(
-                TOPIC_DOWNLINK, JSONObject(
-                    """{
-  "downlinks": [
-    {
-      "f_port": 1,
-      "frm_payload": "AQ==",
-      "priority": "NORMAL"
-    }
-  ]
-}"""
-                )
-            )
-            /*val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
+
+            val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
 
             alertDialog = AlertDialog.Builder(requireContext())
                 .setView(dialogView)
@@ -276,7 +308,7 @@ class SessionFragment : Fragment() {
                 closePopup()
             }
 
-            alertDialog.show()*/
+            alertDialog.show()
         }
     }
 

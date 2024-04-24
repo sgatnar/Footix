@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
         retryInternetConnectionButton.setOnClickListener {
             if (isInternetAvailable()) {
                 dialog.dismiss()
-                checkInternetAndNavigateTo(HomeFragment()) // Retry to check the internet connection
+                checkInternetAndNavigateTo(HomeFragment())
             } else {
                 Toast.makeText(this, R.string.pleaseConnectAgain, Toast.LENGTH_SHORT).show()
             }
