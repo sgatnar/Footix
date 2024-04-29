@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.footixappbachelorarbeit.ttn.MQTTClient
+import com.example.footixappbachelorarbeit.viewModelLiveData.FootballFieldDrawingView
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
@@ -61,6 +62,7 @@ class SessionFragment : Fragment() {
     var previousLat: Double? = null
     private var currentTimeInSeconds by Delegates.notNull<Long>()
     private lateinit var alertDialog: AlertDialog
+    private lateinit var footballFieldDrawingView: FootballFieldDrawingView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,6 +166,10 @@ class SessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        footballFieldDrawingView = view.findViewById(R.id.footballFieldDrawingView)
+
+        footballFieldDrawingView.updateField()
+
         viewModel.activeSession.observe(viewLifecycleOwner) { isActive ->
             if (isActive) {
                 timeIcon.visibility = View.VISIBLE
@@ -178,25 +184,46 @@ class SessionFragment : Fragment() {
     }
 
     fun writeSessionDataToDB() {
-
         GlobalScope.launch(Dispatchers.IO) {
-            val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
-            val distance = "%.2f".format(totalDistance).toDouble()
-            val speed = 23f
-            var time = currentTimeInSeconds
-            var timeFormated = formatTime(time)
+            try {
+                val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
+                val distance = "%.2f".format(totalDistance).toDouble()
+                val speed = 23f
+                var time = currentTimeInSeconds
+                var timeFormatted = formatTime(time)
 
-            val session = Session(null, date, distance, speed, timeFormated)
-            appDB.sessionDao().insert(session)
+                var isAvailable = false
 
-            val numSessions = appDB.sessionDao().getCount()
+                val existingSessions = appDB.sessionDao().getAllSessions()
+                for (session in existingSessions) {
+                    if (session.currentDate == date) {
+                        isAvailable = true
+                        session.totalDistance = distance
+                        session.maxSpeed = speed
+                        session.runTime = timeFormatted
+                        appDB.sessionDao().update(session)
+                        break
+                    }
+                }
 
-            viewModel.amountOfSession.postValue(numSessions)
-            delay(5000)
-            Log.d(
-                "SessionDao",
-                "Number of sessions after insertion: ${viewModel.amountOfSession.value}"
-            )
+                if (isAvailable) {
+                    println("Session updated")
+                } else {
+                    val session = Session(null, date, distance, speed, timeFormatted)
+                    appDB.sessionDao().insert(session)
+                    println("New session inserted")
+                }
+
+                val numSessions = appDB.sessionDao().getCount()
+                viewModel.amountOfSession.postValue(numSessions)
+                delay(5000)
+                Log.d(
+                    "SessionDao",
+                    "Number of sessions after insertion: ${viewModel.amountOfSession.value}"
+                )
+            } catch (e: Exception) {
+                Log.e("writeSessionDataToDB", "Error writing session data to database: ${e.message}", e)
+            }
         }
 
         val currentView = view

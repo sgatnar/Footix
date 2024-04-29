@@ -2,6 +2,7 @@ package com.example.footixappbachelorarbeit
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle

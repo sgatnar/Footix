@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.footixappbachelorarbeit.adapters.CalendarAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
+import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.snackbar.Snackbar
@@ -36,6 +37,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Date
+import java.util.Locale
+
 
 class HomeFragment : Fragment(){
 
@@ -83,6 +87,7 @@ class HomeFragment : Fragment(){
         calendar = view.findViewById(R.id.day_date_picker)
 
         initCalendar()
+        //writeDB()
 
         recyclerView = view.findViewById(R.id.recyclerView)
 
@@ -111,6 +116,7 @@ class HomeFragment : Fragment(){
         return view
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun initCalendar() {
         currentDate = LocalDate.now()
 
@@ -118,14 +124,12 @@ class HomeFragment : Fragment(){
         val monthStart = currentDate.monthValue
         val dayStart = currentDate.dayOfMonth
 
-        calendar.setStartDate(1, 1, 2024)
+        calendar.setStartDate(1, 4, 2024)
         calendar.setEndDate(dayStart, monthStart, yearStart)
         calendar.getSelectedDate { date ->
             if (date != null) {
-
-                val formatter = SimpleDateFormat("yyyy-MM-dd")
+                val formatter = SimpleDateFormat("dd.MM.yyyy")
                 val formattedDate = formatter.format(date.time)
-
                 readSessionDataFromDB(formattedDate)
             }
         }
@@ -175,49 +179,63 @@ class HomeFragment : Fragment(){
         }
     }
 
+    fun writeDB(){
+        GlobalScope.launch {
+            val session1 = Session(344, "21.04.2024", 2.50, 2.22f, "23:12")
+            appDB.sessionDao().insert(session1)
+        }
+    }
+
     fun readSessionDataFromDB(selectedDate: String) {
         GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val sessions = appDB.sessionDao().getAllSessions()
 
-            Log.e("readSessionFromDB Methode", "date: $selectedDate")
-            val session = appDB.sessionDao().getDataByDate(selectedDate)
+                val sessionForSelectedDate = sessions.find { it.currentDate == selectedDate }
 
-            if (session != null) {
-                Log.e("1: Sessions: ", "This is the current session $session")
+                val items = if (sessionForSelectedDate != null) {
+                    val distanceInt = sessionForSelectedDate.totalDistance?.toInt() ?: 0
+                    val distance = "${sessionForSelectedDate.totalDistance} km"
 
-                val date = session.currentDate
-                val distanceInt = session.totalDistance?.toInt()
-                val distance = session.totalDistance.toString() + " km"
+                    val speedInt = sessionForSelectedDate.maxSpeed?.toInt() ?: 0
+                    val speed = "${sessionForSelectedDate.maxSpeed} km/h"
 
-                val speedInt = session.maxSpeed?.toInt()
-                val speed = session.maxSpeed.toString() + " km/h"
+                    val total = sessionForSelectedDate.runTime
+                    val parts = total?.split(":")
+                    val minutes = parts?.getOrNull(1)?.toInt() ?: 0
+                    val seconds = parts?.getOrNull(2)?.toInt() ?: 0
+                    val time = String.format("%02d:%02d", minutes, seconds) + " min"
 
-                val total = session.runTime
-                val parts = total?.split(":")
-                val minutes = if (parts?.size ?: 0 >= 2) parts?.get(1)?.toInt() else 0
-                val seconds = if (parts?.size ?: 0 >= 3) parts?.get(2)?.toInt() else 0
-                val time = String.format("%02d:%02d", minutes, seconds) + " min"
-
-                items = listOf(
-                    CalendarAdapter.CalendarItem(getString(R.string.distance), distance, distanceInt, 20),
-                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), speed, speedInt, 40),
-                    CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minutes, 100)
-                )
-
-                items.forEachIndexed { index, item ->
-                    Log.d("CalendarItem[$index]", "Description: ${item.description}, Value: ${item.value}, Progress: ${item.progress}, Max Progress: ${item.maxProgress}")
+                    listOf(
+                        CalendarAdapter.CalendarItem(getString(R.string.distance), distance, distanceInt, 20),
+                        CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), speed, speedInt, 40),
+                        CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minutes, 100)
+                    )
+                } else {
+                    Log.e("Error: ", "No session found for the selected date")
+                    listOf(
+                        CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 20),
+                        CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 40),
+                        CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)
+                    )
                 }
-            } else {
-                items = listOf(
-                    CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 20), // Max progress set to 100
-                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 40),   // Max progress set to 150
-                    CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)       // Max progress set to 50
-                )
-                Log.e("Error: ", "No session found for the current date")
+
+                withContext(Dispatchers.Main) {
+                    adapter = CalendarAdapter(items)
+                    recyclerView.adapter = adapter
+                    recyclerView.layoutManager = LinearLayoutManager(requireContext())
+                }
+            } catch (e: Exception) {
+                Log.e("readSessionDataFromDB", "Error reading session data from database: ${e.message}", e)
             }
-            withContext(Dispatchers.Main) {
-                adapter = CalendarAdapter(items)
-                recyclerView.adapter = adapter
-                recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+
+    suspend fun getAllSessions() {
+        withContext(Dispatchers.IO) {
+            val allSessions = appDB.sessionDao().getAllSessions()
+            allSessions.forEach { session ->
+                Log.d("Database Entry", session.toString())
             }
         }
     }
