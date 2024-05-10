@@ -3,7 +3,7 @@ package com.example.footixappbachelorarbeit.ttn
 import android.content.Context
 import android.util.Base64
 import android.util.Log
-import org.eclipse.paho.android.service.MqttAndroidClient
+import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.IMqttToken

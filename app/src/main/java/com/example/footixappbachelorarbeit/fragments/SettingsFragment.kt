@@ -2,7 +2,6 @@ package com.example.footixappbachelorarbeit
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +12,11 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,6 +31,7 @@ class SettingsFragment : Fragment() {
     private lateinit var sessionText: TextView
     private lateinit var amountSession: TextView
     private lateinit var backButton: ImageView
+    private lateinit var imageChangeButton: ImageView
     private val items: MutableList<String> = mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
 
     override fun onCreateView(
@@ -50,6 +52,21 @@ class SettingsFragment : Fragment() {
             amountSession.text = viewModel.amountOfSession.value.toString()
         }
 
+        imageChangeButton.setOnClickListener {
+            val snackbar = Snackbar.make(
+                view,
+                requireContext().resources.getString(R.string.noImage),
+                Snackbar.LENGTH_SHORT
+            ).setBackgroundTint(
+                requireContext().getResources().getColor(R.color.grey_background_footix, null)
+            )
+                .setTextColor(
+                    requireContext().getResources().getColor(R.color.black_footix)
+                )
+
+            snackbar.show()
+        }
+
         return view
     }
 
@@ -60,6 +77,7 @@ class SettingsFragment : Fragment() {
         nameDescription = view.findViewById(R.id.nameDescriptionGreenContainerSettings)
         sessionText = view.findViewById(R.id.sessionTextGreenContainerSettings)
         amountSession = view.findViewById(R.id.amountSessionCounterGreenContainer)
+        imageChangeButton = view.findViewById(R.id.imageChangeButton)
     }
 
     private fun setupListView() {

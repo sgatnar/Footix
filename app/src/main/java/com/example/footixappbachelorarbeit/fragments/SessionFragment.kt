@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -18,7 +19,6 @@ import com.example.footixappbachelorarbeit.viewModelLiveData.FootballFieldDrawin
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -168,7 +168,7 @@ class SessionFragment : Fragment() {
 
         footballFieldDrawingView = view.findViewById(R.id.footballFieldDrawingView)
 
-        footballFieldDrawingView.updateField()
+        //footballFieldDrawingView.updateField(0.0, 0.0)
 
         viewModel.activeSession.observe(viewLifecycleOwner) { isActive ->
             if (isActive) {
@@ -187,7 +187,8 @@ class SessionFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()
-                val distance = "%.2f".format(totalDistance).toDouble()
+                val distanceStringWithPeriod = "%.2f".format(totalDistance).replace(",", ".")
+                val distance = distanceStringWithPeriod.toDouble()
                 val speed = 23f
                 var time = currentTimeInSeconds
                 var timeFormatted = formatTime(time)
@@ -226,21 +227,7 @@ class SessionFragment : Fragment() {
             }
         }
 
-        val currentView = view
-        val currentContext = requireContext()
-
-        val snackbar = Snackbar.make(
-            currentView!!,
-            currentContext.resources.getString(R.string.succesfullSession),
-            Snackbar.LENGTH_SHORT
-        ).setBackgroundTint(
-            currentContext.getResources().getColor(R.color.grey_background_footix, null)
-        )
-            .setTextColor(
-                currentContext.getResources().getColor(R.color.black_footix)
-            )
-
-        snackbar.show()
+        Toast.makeText(requireContext(), R.string.succesfullSession, Toast.LENGTH_SHORT).show()
     }
 
     private fun connectToMQTT() {
@@ -248,7 +235,7 @@ class SessionFragment : Fragment() {
         mqttClient.connect(
             object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.d("MQTT", "Connection successful...${viewModel.activeMQTTConnection.value}")
+                    Log.e("MQTT", "Connection successful...${viewModel.activeMQTTConnection.value}")
                     if (!subscribedUplink) {
                         mqttClient.subscribeToTopic(TOPIC_UPLINK, 0)
                     }
@@ -263,8 +250,14 @@ class SessionFragment : Fragment() {
             },
             object : MQTTClient.DataListener {
 
+                // Send MQTT back to TTN. If message received correct payload = 1, if not payload = 0
                 override fun onDataReceived(long: Double, lat: Double) {
 
+                    /*activity?.runOnUiThread {
+                        footballFieldDrawingView.updateField(long, lat)
+                    }*/
+
+                    // // If message received correctly, send base64 coded 1 --> AQ==
                     mqttClient.publish(
                         TOPIC_DOWNLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "AQ==","priority": "NORMAL"}]}""")
                     )
@@ -280,6 +273,11 @@ class SessionFragment : Fragment() {
 
                         distance.text = "$formattedTotalDistance km"
                     }else{
+                        // If not received, send base64 coded 0 --> MA==
+                        mqttClient.publish(
+                            TOPIC_DOWNLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "MA==","priority": "NORMAL"}]}""")
+                        )
+
                         Log.e("Calculation Distance Error", "Calculation of distance is not possible")
                     }
                 }
@@ -315,8 +313,8 @@ class SessionFragment : Fragment() {
 
     @SuppressLint("MissingInflatedId")
     private fun dialogInformation() {
-        infoButton.setOnClickListener {
 
+        infoButton.setOnClickListener {
             val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
 
             alertDialog = AlertDialog.Builder(requireContext())
@@ -327,7 +325,8 @@ class SessionFragment : Fragment() {
             popupTitleSession.text = getString(R.string.sessionInfo)
 
             val popupDescriptionTextSession = dialogView.findViewById<TextView>(R.id.popupText)
-            popupDescriptionTextSession.text = getString(R.string.startingDate)
+            var descriptionFusion = "${getString(R.string.startingDate)}\n${LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")).toString()}"
+            popupDescriptionTextSession.text = descriptionFusion
 
             val retryInternetConnectionButton = dialogView.findViewById<Button>(R.id.cancelButton)
             retryInternetConnectionButton.text = getString(R.string.close)

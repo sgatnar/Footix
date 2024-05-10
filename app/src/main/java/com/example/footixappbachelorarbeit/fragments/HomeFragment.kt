@@ -16,6 +16,7 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -26,10 +27,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.footixappbachelorarbeit.adapters.CalendarAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
-import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
-import com.google.android.material.snackbar.Snackbar
 import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,8 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.Date
-import java.util.Locale
 
 
 class HomeFragment : Fragment(){
@@ -139,14 +136,7 @@ class HomeFragment : Fragment(){
         greenContainer.setOnClickListener {
             if (greenContainer == greenContainerLeft) {
                 if (viewModel.activeSession.value == true){
-                    val snackbar = Snackbar.make(
-                        view.findViewById(R.id.fragment_home),
-                        resources.getString(R.string.activeSession),
-                        Snackbar.LENGTH_SHORT
-                    ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
-
-                    snackbar.show()
-
+                    Toast.makeText(requireContext(), R.string.activeSession, Toast.LENGTH_SHORT).show()
                 } else{
                     showProgressBar()
                     progressBar = ProgressBar(requireContext())
@@ -168,21 +158,8 @@ class HomeFragment : Fragment(){
                 fragmentTransaction.replace(R.id.frame_layout, fragment)
                 fragmentTransaction.commit()
 
-                 val snackbar = Snackbar.make(
-                     view.findViewById(R.id.fragment_home),
-                     resources.getString(R.string.toastRestartApp),
-                     Snackbar.LENGTH_SHORT
-                 ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix))
-
-                 snackbar.show()
+                 Toast.makeText(requireContext(), R.string.toastRestartApp, Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    fun writeDB(){
-        GlobalScope.launch {
-            val session1 = Session(344, "21.04.2024", 2.50, 2.22f, "23:12")
-            appDB.sessionDao().insert(session1)
         }
     }
 
@@ -202,14 +179,31 @@ class HomeFragment : Fragment(){
 
                     val total = sessionForSelectedDate.runTime
                     val parts = total?.split(":")
+                    val hours = parts?.getOrNull(0)?.toInt() ?: 0
                     val minutes = parts?.getOrNull(1)?.toInt() ?: 0
                     val seconds = parts?.getOrNull(2)?.toInt() ?: 0
-                    val time = String.format("%02d:%02d", minutes, seconds) + " min"
+
+                    var minProgBar = 0
+
+                    if (hours==1){
+                        minProgBar = minutes + 60
+                    }else if (hours == 2){
+                        minProgBar = 100
+                    } else{
+                        minProgBar = minutes
+                    }
+
+                    // Ensure two-digit format for all time units
+                    val formattedHours = String.format("%02d", hours)
+                    val formattedMinutes = String.format("%02d", minutes)
+                    val formattedSeconds = String.format("%02d", seconds)
+
+                    val time = "$formattedHours:$formattedMinutes:$formattedSeconds h"
 
                     listOf(
                         CalendarAdapter.CalendarItem(getString(R.string.distance), distance, distanceInt, 20),
                         CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), speed, speedInt, 40),
-                        CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minutes, 100)
+                        CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minProgBar, 100)
                     )
                 } else {
                     Log.e("Error: ", "No session found for the selected date")
@@ -247,9 +241,20 @@ class HomeFragment : Fragment(){
     }
 
     private fun showHighScorePopup() {
-        val fragmentManager = childFragmentManager
-        val customPopupDialogFragment = CustomPopupDialogFragment()
-        customPopupDialogFragment.show(fragmentManager, "CustomPopupDialogFragment")
+        GlobalScope.launch(Dispatchers.IO) {
+            val allSessions = appDB.sessionDao().getAllSessions()
+            val sortedSessions = allSessions.sortedByDescending { it.totalDistance }
+            val rankingList = sortedSessions.mapIndexed { index, session ->
+                RankingItem(index + 1, "${session.totalDistance} km", session.currentDate)
+            }.take(5) // Take only the top three items
+
+            withContext(Dispatchers.Main) {
+                val fragmentManager = childFragmentManager
+                val customPopupDialogFragment = CustomPopupDialogFragment()
+                customPopupDialogFragment.setRankingList(rankingList)
+                customPopupDialogFragment.show(fragmentManager, "CustomPopupDialogFragment")
+            }
+        }
     }
 
     fun showProgressBar() {
@@ -262,11 +267,19 @@ class HomeFragment : Fragment(){
 
     class CustomPopupDialogFragment : DialogFragment() {
 
-        private val rankingList = listOf(
+        private val rankingList: MutableList<RankingItem> = mutableListOf()
+        private var rankingAdapter: RankingAdapter? = null
+
+        /*private val rankingList = listOf(
             RankingItem(1, "10 km", "01.04.2024"),
             RankingItem(2, "8 km", "02.04.2024"),
             RankingItem(3, "6 km", "03.04.2024"),
-        )
+        )*/
+
+        fun setRankingList(list: List<RankingItem>) {
+            rankingList.clear()
+            rankingList.addAll(list)
+        }
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -286,15 +299,36 @@ class HomeFragment : Fragment(){
             val closeButton = view.findViewById<Button>(R.id.cancelButton)
             val rankingListView = view.findViewById<ListView>(R.id.rankingListView)
 
+            popupTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+            closeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+
             popupTitle.text = getString(R.string.highscore)
 
-            val adapter = RankingAdapter(requireContext(), rankingList)
-            rankingListView.adapter = adapter
+            rankingAdapter = RankingAdapter(requireContext(), rankingList)
+            rankingListView.adapter = rankingAdapter
 
             closeButton.setOnClickListener {
                 dismiss()
             }
         }
+
+        /*private fun popupHighscoreCreate(view: View) {
+            val popupTitle = view.findViewById<TextView>(R.id.popupTitle)
+            val closeButton = view.findViewById<Button>(R.id.cancelButton)
+            val rankingListView = view.findViewById<ListView>(R.id.rankingListView)
+
+            popupTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+            closeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+
+            popupTitle.text = getString(R.string.highscore)
+
+            rankingAdapter = RankingAdapter(requireContext(), rankingList)
+            rankingListView.adapter = rankingAdapter
+
+            closeButton.setOnClickListener {
+                dismiss()
+            }
+        }*/
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return super.onCreateDialog(savedInstanceState).apply {
@@ -303,6 +337,3 @@ class HomeFragment : Fragment(){
         }
     }
 }
-
-
-

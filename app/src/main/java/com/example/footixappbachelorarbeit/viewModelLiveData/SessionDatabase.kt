@@ -4,10 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Session::class], version = 1)//, exportSchema = false)
+@Database(entities = [Session::class], version = 2, exportSchema = false)//, exportSchema = false)
 abstract class SessionDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
@@ -33,7 +31,7 @@ abstract class SessionDatabase : RoomDatabase() {
                     context.applicationContext,
                     SessionDatabase::class.java,
                     "app_database"
-                ).build()//.addMigrations(MIGRATION_1_2)
+                ).fallbackToDestructiveMigration().build()//.addMigrations(MIGRATION_1_2)
                 INSTANCE = instance
                 return instance
             }
