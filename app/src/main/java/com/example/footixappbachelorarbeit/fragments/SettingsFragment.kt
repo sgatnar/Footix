@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -16,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -53,18 +53,8 @@ class SettingsFragment : Fragment() {
         }
 
         imageChangeButton.setOnClickListener {
-            val snackbar = Snackbar.make(
-                view,
-                requireContext().resources.getString(R.string.noImage),
-                Snackbar.LENGTH_SHORT
-            ).setBackgroundTint(
-                requireContext().getResources().getColor(R.color.grey_background_footix, null)
-            )
-                .setTextColor(
-                    requireContext().getResources().getColor(R.color.black_footix)
-                )
+            Toast.makeText(requireContext(), R.string.noImage, Toast.LENGTH_SHORT).show()
 
-            snackbar.show()
         }
 
         return view

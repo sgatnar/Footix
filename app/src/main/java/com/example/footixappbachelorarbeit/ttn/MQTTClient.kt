@@ -49,6 +49,7 @@ class MQTTClient(val context: Context) {
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                Log.d(TAG, "Delivery completed ${token.toString()}")
             }
         })
 
@@ -132,9 +133,9 @@ class MQTTClient(val context: Context) {
                 }
             })
         } catch (e: Exception) {
-            // Give Callback on error here
+            e.printStackTrace()
         } catch (e: MqttException) {
-            // Give Callback on error here
+            e.printStackTrace()
         }
     }
 

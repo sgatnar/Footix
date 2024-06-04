@@ -5,8 +5,6 @@ import android.app.Dialog
 import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +27,7 @@ import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -138,17 +137,21 @@ class HomeFragment : Fragment(){
                 if (viewModel.activeSession.value == true){
                     Toast.makeText(requireContext(), R.string.activeSession, Toast.LENGTH_SHORT).show()
                 } else{
+
+                    val bottomNavBar: BottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView)
+                    bottomNavBar.selectedItemId = R.id.session
+
                     showProgressBar()
                     progressBar = ProgressBar(requireContext())
                     requireView().findViewById<ViewGroup>(R.id.fragment_session)?.addView(progressBar)
 
                     Log.d("HomeFragment", "Active session value: ${viewModel.activeSession.value}")
 
-                    Handler(Looper.getMainLooper()).postDelayed({
+                    /*Handler(Looper.getMainLooper()).postDelayed({
                         val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-                        fragmentTransaction.replace(R.id.frame_layout, fragment)
+                        //fragmentTransaction.replace(R.id.frame_layout, fragment)
                         fragmentTransaction.commit()
-                    }, 2000)
+                    }, 2000)*/
                 }
             } else if(greenContainer == greenContainerRight){
                 showHighScorePopup()

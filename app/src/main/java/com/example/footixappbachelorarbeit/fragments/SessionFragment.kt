@@ -19,18 +19,21 @@ import com.example.footixappbachelorarbeit.viewModelLiveData.FootballFieldDrawin
 import com.example.footixappbachelorarbeit.viewModelLiveData.Session
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Timer
-import java.util.TimerTask
 import kotlin.properties.Delegates
 
 private const val ARG_PARAM1 = "param1"
@@ -63,6 +66,7 @@ class SessionFragment : Fragment() {
     private var currentTimeInSeconds by Delegates.notNull<Long>()
     private lateinit var alertDialog: AlertDialog
     private lateinit var footballFieldDrawingView: FootballFieldDrawingView
+    private lateinit var coroutineTimer: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,17 +134,10 @@ class SessionFragment : Fragment() {
 
             endSessionButton.setOnClickListener {
 
-                /*CoroutineScope(Dispatchers.IO).launch {
-                    appDB.sessionDao().clearSessions()
-                }*/
+                coroutineTimer.cancel()
 
-                onDestroy()
+                navigateBottomNavBar(R.id.home)
                 viewModel.sessionTimerValue.value = 0
-
-                val fragmentTransaction =
-                    requireActivity().supportFragmentManager.beginTransaction()
-                fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
-                fragmentTransaction.commit()
 
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(3000)
@@ -243,7 +240,6 @@ class SessionFragment : Fragment() {
                         mqttClient.subscribeToTopic(TOPIC_DOWNLINK, 0)
                     }
                 }
-
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     Log.e("MQTT", "Connection failure", exception)
                 }
@@ -257,27 +253,23 @@ class SessionFragment : Fragment() {
                         footballFieldDrawingView.updateField(long, lat)
                     }*/
 
-                    // // If message received correctly, send base64 coded 1 --> AQ==
                     mqttClient.publish(
-                        TOPIC_DOWNLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "AQ==","priority": "NORMAL"}]}""")
+                        TOPIC_UPLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "AQ==","priority": "NORMAL"}]}""")
                     )
 
                     if (long != null && lat != null) {
                         val formattedDistance = calculateDistance(long, lat)
                         totalDistance += formattedDistance
                         val formattedDistanceMeters = String.format("%.2f", formattedDistance)
-
                         Log.e("Distance", "Distance in meters: $formattedDistance m")
                         Log.e("Total Distance", "Distance in meters: $totalDistance m")
                         val formattedTotalDistance = String.format("%.2f", totalDistance)
-
                         distance.text = "$formattedTotalDistance km"
                     }else{
                         // If not received, send base64 coded 0 --> MA==
                         mqttClient.publish(
-                            TOPIC_DOWNLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "MA==","priority": "NORMAL"}]}""")
+                            TOPIC_UPLINK, JSONObject("""{"downlinks":[{"f_port": 1,"frm_payload": "MA==","priority": "NORMAL"}]}""")
                         )
-
                         Log.e("Calculation Distance Error", "Calculation of distance is not possible")
                     }
                 }
@@ -292,8 +284,8 @@ class SessionFragment : Fragment() {
         if (previousLat == null || previousLong == null || previousLong == 0.00 || previousLat == 0.0) {
             previousLat = currentLat
             previousLong = currentLong
-            distance.text = "Init phase"
-            return 0.0
+            distance.text = "0.00 km"
+            return 0.00
         }
 
         val deltaLat = Math.toRadians(currentLat - previousLat!!)
@@ -355,9 +347,7 @@ class SessionFragment : Fragment() {
         val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
         cancelButton.text = getString(R.string.cancel)
         cancelButton.setOnClickListener {
-            val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.frame_layout, HomeFragment())
-            fragmentTransaction.commit()
+            navigateBottomNavBar(R.id.home)
             closePopup()
         }
         val startSessionButton = dialogView.findViewById<Button>(R.id.confirmButton)
@@ -370,21 +360,28 @@ class SessionFragment : Fragment() {
         alertDialog.show()
     }
 
+    fun navigateBottomNavBar(id: Int){
+        val bottomNavBar: BottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView)
+        bottomNavBar.selectedItemId = id
+    }
+
     private fun startSessionTimer() {
+
         timer?.cancel()
-        timer = Timer()
 
         currentTimeInSeconds = viewModel.sessionTimerValue.value ?: 0L
 
-        timer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                activity?.runOnUiThread {
-                    currentTimeInSeconds++
+        coroutineTimer = CoroutineScope(Dispatchers.Main).launch {
+            while (isActive) {
+                delay(1000L)
+                currentTimeInSeconds++
+                withContext(Dispatchers.Main) {
                     timerText.text = formatTime(currentTimeInSeconds)
                     viewModel.sessionTimerValue.value = currentTimeInSeconds
+                    Log.e("Timer", timerText.text.toString())
                 }
             }
-        }, 0, 1000)
+        }
     }
 
     private fun formatTime(seconds: Long): String {
@@ -403,7 +400,6 @@ class SessionFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer?.cancel()
     }
 
     companion object {
