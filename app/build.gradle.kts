@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("org.osgeo:proj4j:0.1.0")
     //implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0")
     //implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")

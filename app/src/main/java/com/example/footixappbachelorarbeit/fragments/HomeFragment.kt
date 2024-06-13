@@ -120,7 +120,7 @@ class HomeFragment : Fragment(){
         val monthStart = currentDate.monthValue
         val dayStart = currentDate.dayOfMonth
 
-        calendar.setStartDate(1, 4, 2024)
+        calendar.setStartDate(1, 6, 2024)
         calendar.setEndDate(dayStart, monthStart, yearStart)
         calendar.getSelectedDate { date ->
             if (date != null) {
