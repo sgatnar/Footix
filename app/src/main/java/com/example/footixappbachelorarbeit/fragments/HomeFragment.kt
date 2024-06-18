@@ -273,12 +273,6 @@ class HomeFragment : Fragment(){
         private val rankingList: MutableList<RankingItem> = mutableListOf()
         private var rankingAdapter: RankingAdapter? = null
 
-        /*private val rankingList = listOf(
-            RankingItem(1, "10 km", "01.04.2024"),
-            RankingItem(2, "8 km", "02.04.2024"),
-            RankingItem(3, "6 km", "03.04.2024"),
-        )*/
-
         fun setRankingList(list: List<RankingItem>) {
             rankingList.clear()
             rankingList.addAll(list)

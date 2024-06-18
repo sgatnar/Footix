@@ -65,7 +65,7 @@ class MQTTClient(val context: Context) {
         }
     }
 
-    private fun handlePayload(message: MqttMessage?) {
+     fun handlePayload(message: MqttMessage?) {
         try {
             val payload = String(message?.payload ?: return)
             val uplinkMessage = JSONObject(payload)
