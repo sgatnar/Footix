@@ -3,7 +3,7 @@ package com.example.footixappbachelorarbeit.ttn
 import android.content.Context
 import android.util.Base64
 import android.util.Log
-import org.eclipse.paho.android.service.MqttAndroidClient
+import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.IMqttToken
@@ -20,7 +20,8 @@ class MQTTClient(val context: Context) {
     //MQTT credentials
     val SERVER_URL_MQTT = "tcp://eu1.cloud.thethings.network:1883"
     val USERNAME_MQTT = "footix-gnss-application@ttn"
-    val PASSWORD_APIKEY_MQTT = "NNSXS.ZED6RVBM27YAXGNKSIBQCU3FT7MXNRJNJ2TT6HY.KQ2XC6JAZQSCLJFW3KJWYW5F4WVJNXAVTJAXM7TISWGL6VWPARAA"
+    val PASSWORD_APIKEY_MQTT =
+        "NNSXS.YKQELUZ3MNYEEWFD7BNQCORQDIQ52SKQRHTNQTQ.RVYLYOB7MIJ5LZS5HS2DD6ZFK6Z4QSNQJQZU4TWHEZYQP6RFRDOA" // APPKEY
     val TOPIC_UPLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/up"
     val TOPIC_DOWNLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/down/push"
 
@@ -49,6 +50,7 @@ class MQTTClient(val context: Context) {
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                Log.d(TAG, "Delivery completed ${token.toString()}")
             }
         })
 
@@ -64,12 +66,13 @@ class MQTTClient(val context: Context) {
         }
     }
 
-    private fun handlePayload(message: MqttMessage?) {
+    fun handlePayload(message: MqttMessage?) {
         try {
             val payload = String(message?.payload ?: return)
             val uplinkMessage = JSONObject(payload)
             Log.d(TAG, "Uplinkmessage: $uplinkMessage")
-            val frmPayloadBase64 = uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
+            val frmPayloadBase64 =
+                uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
             Log.d(TAG, "Payload: $frmPayloadBase64")
 
             val frmPayloadBytes = Base64.decode(frmPayloadBase64, Base64.DEFAULT)
@@ -112,35 +115,27 @@ class MQTTClient(val context: Context) {
         }
     }
 
-    fun publishMessage(topic: String, payload: String) {
+    fun publish(topic: String, data: JSONObject) {
+        val encodedPayload: ByteArray
         try {
-            val msg = MqttMessage()
-            msg.payload = payload.toByteArray()
-            if (mqttAndroidClient.isConnected) {
-                mqttAndroidClient.publish(topic, msg.payload, 0, true)
-                Log.d(TAG, "$msg published to $topic")
-            }
-        } catch (e: MqttException) {
-            Log.d(TAG, "Error Publishing to $topic: " + e.message)
-            e.printStackTrace()
-        }
-    }
+            encodedPayload = data.toString().toByteArray(charset("UTF-8"))
+            val message = MqttMessage(encodedPayload)
 
-    fun publish(topic: String, msg: String, qos: Int = 0, retained: Boolean = true) {
-        try {
-            val message = MqttMessage()
-            message.payload = msg.toByteArray()
-            message.qos = qos
-            message.isRetained = retained
+            message.qos = 0
+            message.isRetained = true
+            val m = message.payload
+
             mqttAndroidClient.publish(topic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.d(TAG, "$msg published to $topic")
+                    Log.d(TAG, "$message published to $topic")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Log.d(TAG, "Failed to publish $msg to $topic")
+                    Log.d(TAG, "Failed to publish $message to $topic")
                 }
             })
+        } catch (e: Exception) {
+            e.printStackTrace()
         } catch (e: MqttException) {
             e.printStackTrace()
         }

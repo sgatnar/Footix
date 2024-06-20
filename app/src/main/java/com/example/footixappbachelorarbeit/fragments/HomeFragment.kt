@@ -5,8 +5,6 @@ import android.app.Dialog
 import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -28,7 +27,7 @@ import com.example.footixappbachelorarbeit.adapters.RankingAdapter
 import com.example.footixappbachelorarbeit.adapters.RankingItem
 import com.example.footixappbachelorarbeit.viewModelLiveData.SessionDatabase
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.harrywhewell.scrolldatepicker.DayScrollDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,7 +36,8 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 
-class HomeFragment : Fragment(){
+
+class HomeFragment : Fragment() {
 
     private lateinit var view: View
     private lateinit var appDB: SessionDatabase
@@ -87,9 +87,24 @@ class HomeFragment : Fragment(){
         recyclerView = view.findViewById(R.id.recyclerView)
 
         items = listOf(
-            CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 100),
-            CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 100),
-            CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)
+            CalendarAdapter.CalendarItem(
+                getString(R.string.distance),
+                getString(R.string.calenderInitDistance),
+                0,
+                100
+            ),
+            CalendarAdapter.CalendarItem(
+                getString(R.string.maxSpeed),
+                getString(R.string.calendarInitMaxSpeed),
+                0,
+                100
+            ),
+            CalendarAdapter.CalendarItem(
+                getString(R.string.runTime),
+                getString(R.string.calendarInitRunTime),
+                0,
+                100
+            )
         )
 
         adapter = CalendarAdapter(items)
@@ -98,19 +113,22 @@ class HomeFragment : Fragment(){
 
         hideProgressBar()
 
-        progressBar.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
-        progressBar.indeterminateTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
+        progressBar.progressTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
+        progressBar.indeterminateTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow_footix))
 
         startSessionOrHighscore(greenContainerLeft, SessionFragment())
         startSessionOrHighscore(greenContainerRight, SettingsFragment())
 
-        syncButton.setOnClickListener{
+        syncButton.setOnClickListener {
             reloadFragment()
         }
 
         return view
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun initCalendar() {
         currentDate = LocalDate.now()
 
@@ -118,106 +136,153 @@ class HomeFragment : Fragment(){
         val monthStart = currentDate.monthValue
         val dayStart = currentDate.dayOfMonth
 
-        calendar.setStartDate(1, 1, 2024)
+        calendar.setStartDate(1, 6, 2024)
         calendar.setEndDate(dayStart, monthStart, yearStart)
         calendar.getSelectedDate { date ->
             if (date != null) {
-
-                val formatter = SimpleDateFormat("yyyy-MM-dd")
+                val formatter = SimpleDateFormat("dd.MM.yyyy")
                 val formattedDate = formatter.format(date.time)
-
-                // Use the formatted date
                 readSessionDataFromDB(formattedDate)
             }
         }
     }
 
-    private fun HomeFragment.startSessionOrHighscore(greenContainer: ConstraintLayout, fragment: Fragment) {
+    private fun HomeFragment.startSessionOrHighscore(
+        greenContainer: ConstraintLayout,
+        fragment: Fragment
+    ) {
         greenContainer.setOnClickListener {
             if (greenContainer == greenContainerLeft) {
-                if (viewModel.activeSession.value == true){
-                    val snackbar = Snackbar.make(
-                        view.findViewById(R.id.fragment_home), // Replace with your layout ID
-                        resources.getString(R.string.activeSession),
-                        Snackbar.LENGTH_SHORT
-                    ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
+                if (viewModel.activeSession.value == true) {
+                    Toast.makeText(requireContext(), R.string.activeSession, Toast.LENGTH_SHORT)
+                        .show()
+                } else {
 
-                    snackbar.show()
+                    val bottomNavBar: BottomNavigationView =
+                        requireActivity().findViewById(R.id.bottomNavigationView)
+                    bottomNavBar.selectedItemId = R.id.session
 
-                } else{
                     showProgressBar()
                     progressBar = ProgressBar(requireContext())
-                    requireView().findViewById<ViewGroup>(R.id.fragment_session)?.addView(progressBar)
+                    requireView().findViewById<ViewGroup>(R.id.fragment_session)
+                        ?.addView(progressBar)
 
                     Log.d("HomeFragment", "Active session value: ${viewModel.activeSession.value}")
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-                        fragmentTransaction.replace(R.id.frame_layout, fragment)
-                        fragmentTransaction.commit()
-                    }, 2000)
                 }
-            } else if(greenContainer == greenContainerRight){
+            } else if (greenContainer == greenContainerRight) {
                 showHighScorePopup()
-            } else
-             {
-                val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
+            } else {
+                val fragmentTransaction =
+                    requireActivity().supportFragmentManager.beginTransaction()
                 fragmentTransaction.replace(R.id.frame_layout, fragment)
                 fragmentTransaction.commit()
 
-                 val snackbar = Snackbar.make(
-                     view.findViewById(R.id.fragment_home), // Replace with your layout ID
-                     resources.getString(R.string.toastRestartApp),
-                     Snackbar.LENGTH_SHORT
-                 ).setBackgroundTint(resources.getColor(R.color.grey_background_footix, null)).setTextColor(resources.getColor(R.color.black_footix)) // Optional: Set success color
-
-                 snackbar.show()
+                Toast.makeText(requireContext(), R.string.toastRestartApp, Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
 
     fun readSessionDataFromDB(selectedDate: String) {
         GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val sessions = appDB.sessionDao().getAllSessions()
 
-            val session = appDB.sessionDao().getDataByDate(selectedDate)
+                val sessionForSelectedDate = sessions.find { it.currentDate == selectedDate }
 
-            if (session != null) {
-                Log.e("1: Sessions: ", "This is the current session $session")
+                val items = if (sessionForSelectedDate != null) {
+                    val distanceInt = sessionForSelectedDate.totalDistance?.toInt() ?: 0
+                    val distance = "${sessionForSelectedDate.totalDistance} km"
 
-                val date = session.currentDate
-                val distanceInt = session.totalDistance?.toInt()
-                val distance = session.totalDistance.toString() + " km"
+                    val speedInt = sessionForSelectedDate.maxSpeed?.toInt() ?: 0
+                    val speed = "${sessionForSelectedDate.maxSpeed} km/h"
 
-                val speedInt = session.maxSpeed?.toInt()
-                val speed = session.maxSpeed.toString() + " km/h"
+                    val total = sessionForSelectedDate.runTime
+                    val parts = total?.split(":")
+                    val hours = parts?.getOrNull(0)?.toInt() ?: 0
+                    val minutes = parts?.getOrNull(1)?.toInt() ?: 0
+                    val seconds = parts?.getOrNull(2)?.toInt() ?: 0
 
-                val total = session.runTime
-                val parts = total?.split(":")
-                val minutes = if (parts?.size ?: 0 >= 2) parts?.get(1)?.toInt() else 0
-                val seconds = if (parts?.size ?: 0 >= 3) parts?.get(2)?.toInt() else 0
-                val time = String.format("%02d:%02d", minutes, seconds) + " min"
+                    var minProgBar = 0
 
-                items = listOf(
-                    CalendarAdapter.CalendarItem(getString(R.string.distance), distance, distanceInt, 20),
-                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), speed, speedInt, 40),
-                    CalendarAdapter.CalendarItem(getString(R.string.runTime), time, minutes, 100)
-                )
+                    if (hours == 1) {
+                        minProgBar = minutes + 60
+                    } else if (hours == 2) {
+                        minProgBar = 100
+                    } else {
+                        minProgBar = minutes
+                    }
 
-                items.forEachIndexed { index, item ->
-                    Log.d("CalendarItem[$index]", "Description: ${item.description}, Value: ${item.value}, Progress: ${item.progress}, Max Progress: ${item.maxProgress}")
+                    val formattedHours = String.format("%02d", hours)
+                    val formattedMinutes = String.format("%02d", minutes)
+                    val formattedSeconds = String.format("%02d", seconds)
+
+                    val time = "$formattedHours:$formattedMinutes:$formattedSeconds h"
+
+                    listOf(
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.distance),
+                            distance,
+                            distanceInt,
+                            20
+                        ),
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.maxSpeed),
+                            speed,
+                            speedInt,
+                            40
+                        ),
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.runTime),
+                            time,
+                            minProgBar,
+                            100
+                        )
+                    )
+                } else {
+                    Log.e("Error: ", "No session found for the selected date")
+                    listOf(
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.distance),
+                            getString(R.string.calenderInitDistance),
+                            0,
+                            20
+                        ),
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.maxSpeed),
+                            getString(R.string.calendarInitMaxSpeed),
+                            0,
+                            40
+                        ),
+                        CalendarAdapter.CalendarItem(
+                            getString(R.string.runTime),
+                            getString(R.string.calendarInitRunTime),
+                            0,
+                            100
+                        )
+                    )
                 }
-            } else {
-                items = listOf(
-                    CalendarAdapter.CalendarItem(getString(R.string.distance), getString(R.string.calenderInitDistance), 0, 20), // Max progress set to 100
-                    CalendarAdapter.CalendarItem(getString(R.string.maxSpeed), getString(R.string.calendarInitMaxSpeed), 0, 40),   // Max progress set to 150
-                    CalendarAdapter.CalendarItem(getString(R.string.runTime), getString(R.string.calendarInitRunTime), 0, 100)       // Max progress set to 50
+
+                withContext(Dispatchers.Main) {
+                    adapter = CalendarAdapter(items)
+                    recyclerView.adapter = adapter
+                    recyclerView.layoutManager = LinearLayoutManager(requireContext())
+                }
+            } catch (e: Exception) {
+                Log.e(
+                    "readSessionDataFromDB",
+                    "Error reading session data from database: ${e.message}",
+                    e
                 )
-                Log.e("Error: ", "No session found for the current date")
             }
-            withContext(Dispatchers.Main) {
-                adapter = CalendarAdapter(items)
-                recyclerView.adapter = adapter
-                recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+
+    suspend fun getAllSessions() {
+        withContext(Dispatchers.IO) {
+            val allSessions = appDB.sessionDao().getAllSessions()
+            allSessions.forEach { session ->
+                Log.d("Database Entry", session.toString())
             }
         }
     }
@@ -229,9 +294,20 @@ class HomeFragment : Fragment(){
     }
 
     private fun showHighScorePopup() {
-        val fragmentManager = childFragmentManager
-        val customPopupDialogFragment = CustomPopupDialogFragment()
-        customPopupDialogFragment.show(fragmentManager, "CustomPopupDialogFragment")
+        GlobalScope.launch(Dispatchers.IO) {
+            val allSessions = appDB.sessionDao().getAllSessions()
+            val sortedSessions = allSessions.sortedByDescending { it.totalDistance }
+            val rankingList = sortedSessions.mapIndexed { index, session ->
+                RankingItem(index + 1, "${session.totalDistance} km", session.currentDate)
+            }.take(5)
+
+            withContext(Dispatchers.Main) {
+                val fragmentManager = childFragmentManager
+                val customPopupDialogFragment = CustomPopupDialogFragment()
+                customPopupDialogFragment.setRankingList(rankingList)
+                customPopupDialogFragment.show(fragmentManager, "CustomPopupDialogFragment")
+            }
+        }
     }
 
     fun showProgressBar() {
@@ -244,11 +320,13 @@ class HomeFragment : Fragment(){
 
     class CustomPopupDialogFragment : DialogFragment() {
 
-        private val rankingList = listOf(
-            RankingItem(1, "10 km", "01.04.2024"),
-            RankingItem(2, "8 km", "02.04.2024"),
-            RankingItem(3, "6 km", "03.04.2024"),
-        )
+        private val rankingList: MutableList<RankingItem> = mutableListOf()
+        private var rankingAdapter: RankingAdapter? = null
+
+        fun setRankingList(list: List<RankingItem>) {
+            rankingList.clear()
+            rankingList.addAll(list)
+        }
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -268,10 +346,13 @@ class HomeFragment : Fragment(){
             val closeButton = view.findViewById<Button>(R.id.cancelButton)
             val rankingListView = view.findViewById<ListView>(R.id.rankingListView)
 
+            popupTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+            closeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_footix))
+
             popupTitle.text = getString(R.string.highscore)
 
-            val adapter = RankingAdapter(requireContext(), rankingList)
-            rankingListView.adapter = adapter
+            rankingAdapter = RankingAdapter(requireContext(), rankingList)
+            rankingListView.adapter = rankingAdapter
 
             closeButton.setOnClickListener {
                 dismiss()
@@ -285,6 +366,3 @@ class HomeFragment : Fragment(){
         }
     }
 }
-
-
-

@@ -5,6 +5,8 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
+import java.util.Date
 
 @Dao
 interface SessionDao {
@@ -12,13 +14,16 @@ interface SessionDao {
     @Insert
     suspend fun insert(session: Session)
 
+    @Update
+    suspend fun update(session: Session)
+
     @Query("SELECT * FROM session")
-    fun getAllSessions(): LiveData<List<Session>>
+    fun getAllSessions(): List<Session>
 
     @Query("SELECT COUNT(*) FROM session")
     suspend fun getCount(): Int
 
-    @Query("SELECT * FROM session WHERE current_date LIKE :date ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM session WHERE current_date = :date")
     suspend fun getDataByDate(date: String): Session
 
     @Delete

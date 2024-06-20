@@ -42,7 +42,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/HighscoreIcon"
+            android:id="@+id/imageChangeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_edit_settings"
@@ -92,7 +92,7 @@
             android:textColor="@color/black_footix"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/HighscoreIcon"
+            app:layout_constraintBottom_toTopOf="@+id/imageChangeButton"
             app:layout_constraintEnd_toEndOf="@+id/amountSessionCounterGreenContainer"
             app:layout_constraintStart_toStartOf="@+id/amountSessionCounterGreenContainer" />
 

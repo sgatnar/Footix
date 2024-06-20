@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:textColor="@color/black_footix"
         android:gravity="center"
         android:text="Popup Title"
         android:textSize="24sp"
@@ -27,6 +28,7 @@
         android:id="@+id/cancelButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/black_footix"
         android:text="Close"/>
 
 </LinearLayout>

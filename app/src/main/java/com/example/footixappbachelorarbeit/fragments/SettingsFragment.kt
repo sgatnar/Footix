@@ -2,17 +2,18 @@ package com.example.footixappbachelorarbeit
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.footixappbachelorarbeit.viewModelLiveData.ViewModelFragmentHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -30,7 +31,9 @@ class SettingsFragment : Fragment() {
     private lateinit var sessionText: TextView
     private lateinit var amountSession: TextView
     private lateinit var backButton: ImageView
-    private val items: MutableList<String> = mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
+    private lateinit var imageChangeButton: ImageView
+    private val items: MutableList<String> =
+        mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +53,10 @@ class SettingsFragment : Fragment() {
             amountSession.text = viewModel.amountOfSession.value.toString()
         }
 
+        imageChangeButton.setOnClickListener {
+            Toast.makeText(requireContext(), R.string.noImage, Toast.LENGTH_SHORT).show()
+        }
+
         return view
     }
 
@@ -60,6 +67,7 @@ class SettingsFragment : Fragment() {
         nameDescription = view.findViewById(R.id.nameDescriptionGreenContainerSettings)
         sessionText = view.findViewById(R.id.sessionTextGreenContainerSettings)
         amountSession = view.findViewById(R.id.amountSessionCounterGreenContainer)
+        imageChangeButton = view.findViewById(R.id.imageChangeButton)
     }
 
     private fun setupListView() {
@@ -93,7 +101,10 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun BottomNavigationView.changeColor(@ColorRes defaultColor: Int, @ColorRes selectedColor: Int) {
+    private fun BottomNavigationView.changeColor(
+        @ColorRes defaultColor: Int,
+        @ColorRes selectedColor: Int
+    ) {
         val colorStateList = ColorStateList(
             arrayOf(
                 intArrayOf(android.R.attr.state_pressed),

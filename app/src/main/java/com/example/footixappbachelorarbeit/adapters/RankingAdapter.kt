@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.example.footixappbachelorarbeit.R
 
 class RankingAdapter(context: Context, private val rankingList: List<RankingItem>) :
@@ -15,7 +16,8 @@ class RankingAdapter(context: Context, private val rankingList: List<RankingItem
         var listItemView = convertView
 
         if (listItemView == null) {
-            listItemView = LayoutInflater.from(context).inflate(R.layout.highscore_items, parent, false)
+            listItemView =
+                LayoutInflater.from(context).inflate(R.layout.highscore_items, parent, false)
         }
 
         val currentItem = rankingList[position]
@@ -23,6 +25,10 @@ class RankingAdapter(context: Context, private val rankingList: List<RankingItem
         val rankingNumberTextView = listItemView?.findViewById<TextView>(R.id.rankingNumberTextView)
         val distanceTextView = listItemView?.findViewById<TextView>(R.id.distanceTextView)
         val dateTextView = listItemView?.findViewById<TextView>(R.id.dateTextView)
+
+        rankingNumberTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+        distanceTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+        dateTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
 
         rankingNumberTextView?.text = currentItem.rankingNumber.toString()
         distanceTextView?.text = currentItem.distance

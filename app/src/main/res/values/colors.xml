@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Whitemode -->
+    <!-- Whitemode colors -->
     <color name="image_background">#195B7F63</color>
     <color name="black_footix">#FF000000</color>
     <color name="white_footix">#FFFFFFFF</color>
@@ -10,6 +10,7 @@
     <color name="grey_background_footix">#C3C3C3</color>
     <color name="red">#FF0000</color>
     <color name="yellow_footix">#B3FF11</color>
+    <color name="yellow_footix_light">#7AB3FF11</color>
 
     <color name="colorDefaultNavBar">@color/grey_background_footix</color>
     <color name="colorSelectedNavBar">@color/green_footix</color>

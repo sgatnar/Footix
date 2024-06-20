@@ -12,7 +12,7 @@
     <string name="initKilometers">0.00</string>
     <string name="calenderInitDistance">0.00 km</string>
     <string name="calendarInitMaxSpeed">0 km/h</string>
-    <string name="calendarInitRunTime"> 0 min</string>
+    <string name="calendarInitRunTime"> 00:00:00 h</string>
     <string name="startSessionButton">START SESSION</string>
     <string name="highscoreButton">HIGHSCORE</string>
     <string name="totalDistanceDescription">TOTAL DISTANCE</string>
@@ -25,8 +25,9 @@
     <string name="startingNewSession">START A NEW SESSION?</string>
     <string name="succesfullSession">The session has been saved.</string>
     <string name="noSession">No session for this day.</string>
+    <string name="noImage">This feature is currently not available.</string>
     <string name="highscore">HIGHSCORE</string>
-    <string name="startSesssionDescriptionText">Please position yourself in the middle of the field and press the START SESSION button.</string>
+    <string name="startSesssionDescriptionText">Start a session by pressing the START SESSION button.</string>
 
     <string name="generalError">Error: Please reopen Footix.</string>
     <string name="noInternet">NO INTERNET CONNECTION</string>

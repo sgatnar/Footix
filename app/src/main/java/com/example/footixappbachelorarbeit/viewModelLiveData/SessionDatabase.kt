@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Session::class], version = 1)
+@Database(entities = [Session::class], version = 2, exportSchema = false)
 abstract class SessionDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
@@ -26,7 +26,7 @@ abstract class SessionDatabase : RoomDatabase() {
                     context.applicationContext,
                     SessionDatabase::class.java,
                     "app_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()//.addMigrations(MIGRATION_1_2)
                 INSTANCE = instance
                 return instance
             }

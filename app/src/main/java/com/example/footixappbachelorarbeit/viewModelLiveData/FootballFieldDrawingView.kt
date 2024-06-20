@@ -5,10 +5,55 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import com.example.footixappbachelorarbeit.R
+import org.osgeo.proj4j.ProjCoordinate
+
 
 class FootballFieldDrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+
+    var playerPosition: ProjCoordinate? = null
+
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        drawFieldInit(canvas)
+
+        drawPosition(canvas, playerPosition)
+    }
+
+    private fun drawFieldInit(canvas: Canvas?) {
+        val centerX = width / 2f
+        val centerY = height / 2f
+        val left = (centerX - width * 0.48f)
+        val right = (centerX + width * 0.48f)
+        val top = (centerY - height * 0.48f)
+        val bottom = (centerY + height * 0.48f)
+
+        // Entire football field
+        canvas?.drawRect(left, top, right, bottom, paint)
+        // Horizontal middle line
+        canvas?.drawLine(left, centerY, right, centerY, paint)
+        // Circle in the middle
+        val radius = width * 0.22f
+        canvas?.drawCircle(centerX, centerY, radius, paint)
+
+        // Rectangles
+        val rectLeft = centerX - width / 4
+        val rectRight = centerX + width / 4
+        val rectTop1 = (centerY + height * 0.3f)
+        val rectBottom2 = (centerY - height * 0.3f)
+
+        canvas?.drawRect(rectLeft, rectTop1, rectRight, bottom, paint)
+        canvas?.drawRect(rectLeft, top, rectRight, rectBottom2, paint)
+        canvas?.drawPath(Path(), paint)
+    }
 
     private val paint = Paint().apply {
         color = Color.WHITE
@@ -16,53 +61,22 @@ class FootballFieldDrawingView(context: Context, attrs: AttributeSet) : View(con
         style = Paint.Style.STROKE
     }
 
-    private val path = Path()
+    private fun drawPosition(canvas: Canvas?, projCoordinate: ProjCoordinate?) {
+        if (projCoordinate == null) {
+            return
+        }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
+        val pointRadius = 24f
 
-        drawField(canvas)
-    }
-
-    private fun drawField(canvas: Canvas?) {
-
-        val centerX = width / 2
-        val centerY = height / 2
-        val fieldWidth = (width * 0.48f)
-        val fieldHeigth = (height * 0.48f)
-
-        val left = centerX - (fieldWidth)
-        val right = centerX + (fieldWidth)
-        val top = centerY - fieldHeigth
-        val bottom = centerY + (fieldHeigth)
-
-        // Entire football field
-        canvas?.drawRect(left, top, right, bottom, paint)
-
-        // Horizontal middle line
-        canvas?.drawLine(left, centerY.toFloat(), right, centerY.toFloat(), paint)
-
-        // Circle in the middle
-        val radius = fieldHeigth / 4.5f
-        canvas?.drawCircle(centerX.toFloat(), centerY.toFloat(), radius, paint)
-
-        // Rectangles
-        val rectLeft1 = centerX - fieldWidth / 2
-        val rectRight1 = centerX + fieldWidth / 2
-        val rectTop1 = centerY + fieldHeigth / 1.6f
-        val rectBottom1 = centerY + fieldHeigth
-
-        val rectLeft2 = centerX - fieldWidth / 2
-        val rectRight2 = centerX + fieldWidth / 2
-        val rectTop2 = centerY - fieldHeigth / 1.6f
-        val rectBottom2 = centerY - fieldHeigth
-
-        canvas?.drawRect(rectLeft1, rectTop1,
-            rectRight1, rectBottom1, paint)
-
-        canvas?.drawRect(rectLeft2, rectTop2,
-            rectRight2, rectBottom2, paint)
-
-        canvas?.drawPath(path, paint)
+        val pointStyle = Paint().apply {
+            color = ContextCompat.getColor(context, R.color.yellow_footix)
+            style = Paint.Style.FILL_AND_STROKE
+        }
+        canvas?.drawCircle(
+            projCoordinate.x.toFloat(),
+            projCoordinate.y.toFloat(),
+            pointRadius,
+            pointStyle
+        )
     }
 }

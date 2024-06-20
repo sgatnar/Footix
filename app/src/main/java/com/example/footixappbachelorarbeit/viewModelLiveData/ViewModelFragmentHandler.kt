@@ -3,7 +3,7 @@ package com.example.footixappbachelorarbeit.viewModelLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class ViewModelFragmentHandler: ViewModel() {
+class ViewModelFragmentHandler : ViewModel() {
 
     var amountOfSession = MutableLiveData<Int>(0)
     val sessionTimerValue = MutableLiveData<Long>(0L)
