@@ -151,7 +151,7 @@ class SessionFragment : Fragment() {
             if (cornersScanned < 3) {
                 if (previousLat == null || previousLong == null) {
                     val errorToast = Toast.makeText(
-                        requireContext(), "Sorry, try again in a few seconds", Toast.LENGTH_SHORT
+                        requireContext(), "Please connect FOOTIX hardware module and restart the app.", Toast.LENGTH_SHORT
                     )
 
                     errorToast.show()
