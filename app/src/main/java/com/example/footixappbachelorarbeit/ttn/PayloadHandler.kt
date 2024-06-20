@@ -22,7 +22,8 @@ class PayloadHandler {
             val payload = String(message?.payload ?: return)
             val uplinkMessage = JSONObject(payload)
             Log.d(TAG, "Uplinkmessage: $uplinkMessage")
-            val frmPayloadBase64 = uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
+            val frmPayloadBase64 =
+                uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
             Log.d(TAG, "Payload: $frmPayloadBase64")
 
             val frmPayloadBytes = Base64.decode(frmPayloadBase64, Base64.DEFAULT)

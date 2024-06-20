@@ -77,8 +77,6 @@ class SessionFragment : Fragment() {
     private lateinit var footballFieldDrawingView: FootballFieldDrawingView
     private lateinit var coroutineTimer: Job
 
-    //region FOOTBALL FIELD
-
     private var cornerLatitudes = ArrayList<Double>(4)
     private var cornerLongitudes = ArrayList<Double>(4)
 
@@ -90,12 +88,7 @@ class SessionFragment : Fragment() {
 
     private fun calculateCurrentPosition(
         currentLat: Double, currentLong: Double, width: Int, height: Int
-    ): ProjCoordinate { //        val latitudes = doubleArrayOf(49.0966610, 49.0961931, 49.0967969, 49.0972568)
-        //        val longitudes = doubleArrayOf(8.9698321, 8.9704132, 8.9715452, 8.9709557)
-
-        //        val currentLat = 49.0969973
-        //        val currentLong = 8.9707939
-
+    ): ProjCoordinate {
         val initialCoords: ArrayList<ProjCoordinate> = ArrayList()
 
         for (i in cornerLongitudes.indices) {
@@ -135,15 +128,6 @@ class SessionFragment : Fragment() {
         )
         return projCoordinate
     }
-
-    /*
-        val latitudes = doubleArrayOf(49.0966610, 49.0961931, 49.0967969, 49.0972568)
-        val longitudes = doubleArrayOf(8.9698321, 8.9704132, 8.9715452, 8.9709557)
-
-
-            val currentLat = 49.0969973
-            val currentLong = 8.9707939
-    */
 
     private fun addCornersDialog() {
         val dialogView = layoutInflater.inflate(R.layout.standard_popup_layout_3, null)
@@ -203,9 +187,6 @@ class SessionFragment : Fragment() {
 
         alertDialog.show()
     }
-
-    //endregion
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -281,7 +262,6 @@ class SessionFragment : Fragment() {
                 writeSessionDataToDB()
             }
             alertDialog.show()
-
         }
 
         backButton.setOnClickListener {
@@ -295,8 +275,6 @@ class SessionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         footballFieldDrawingView = view.findViewById(R.id.footballFieldDrawingView)
-
-        //footballFieldDrawingView.updateField(0.0, 0.0)
 
         viewModel.activeSession.observe(viewLifecycleOwner) { isActive ->
             if (isActive) {

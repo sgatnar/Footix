@@ -2,7 +2,6 @@ package com.example.footixappbachelorarbeit
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -30,7 +29,10 @@ class MainActivity : AppCompatActivity() {
         changeStatusBarColor()
         replaceFragment(HomeFragment())
 
-        binding.bottomNavigationView.changeColor(R.color.colorDefaultNavBar, R.color.colorSelectedNavBar)
+        binding.bottomNavigationView.changeColor(
+            R.color.colorDefaultNavBar,
+            R.color.colorSelectedNavBar
+        )
         binding.bottomNavigationView.selectedItemId = R.id.home
 
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
@@ -38,9 +40,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.home -> {
                     checkInternetAndNavigateTo(HomeFragment())
                 }
+
                 R.id.session -> {
                     checkInternetAndNavigateTo(SessionFragment())
                 }
+
                 R.id.settings -> {
                     checkInternetAndNavigateTo(SettingsFragment())
                 }
@@ -58,9 +62,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        val networkCapabilities =
+            connectivityManager.getNetworkCapabilities(network) ?: return false
         return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                 networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
     }
@@ -76,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         val popupNoInternetTitle = dialogView.findViewById<TextView>(R.id.popupTitle)
         popupNoInternetTitle.text = getString(R.string.noInternet)
 
-        val popupNoInternetText= dialogView.findViewById<TextView>(R.id.popupText)
+        val popupNoInternetText = dialogView.findViewById<TextView>(R.id.popupText)
         popupNoInternetText.text = getString(R.string.ConnectToInternet)
 
         val retryInternetConnectionButton = dialogView.findViewById<Button>(R.id.cancelButton)
@@ -93,7 +99,10 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    fun BottomNavigationView.changeColor(@ColorRes defaultColor: Int, @ColorRes selectedColor: Int) {
+    fun BottomNavigationView.changeColor(
+        @ColorRes defaultColor: Int,
+        @ColorRes selectedColor: Int
+    ) {
         val colorStateList = ColorStateList(
             arrayOf(
                 intArrayOf(android.R.attr.state_pressed),
@@ -113,6 +122,7 @@ class MainActivity : AppCompatActivity() {
     private fun changeStatusBarColor() {
         window.statusBarColor = resources.getColor(R.color.grey_toolbar_footix, theme)
     }
+
     fun replaceFragment(fragment: Fragment) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()

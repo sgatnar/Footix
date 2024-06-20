@@ -15,12 +15,8 @@ import org.osgeo.proj4j.ProjCoordinate
 
 
 class FootballFieldDrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
-    var counter = 1
 
-    private lateinit var gnssStartPointOne: GNSSPositionCoords
-    private lateinit var gnssStartPointTwo: GNSSPositionCoords
-
-     var playerPosition: ProjCoordinate? = null
+    var playerPosition: ProjCoordinate? = null
 
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -30,15 +26,6 @@ class FootballFieldDrawingView(context: Context, attrs: AttributeSet) : View(con
         drawFieldInit(canvas)
 
         drawPosition(canvas, playerPosition)
-
-//        drawPosition(globalCanvas, projCoordinate)
-
-        // Position Rendering
-
-        /*when (counter) {
-            1 -> drawPositionOneLeft(canvas)
-            2 -> drawPositionTwoRight(canvas)
-        }*/
     }
 
     private fun drawFieldInit(canvas: Canvas?) {

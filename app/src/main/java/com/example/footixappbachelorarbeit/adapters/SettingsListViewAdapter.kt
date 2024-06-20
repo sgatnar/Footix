@@ -21,14 +21,16 @@ class SettingsListViewAdapter(
     private val icons: List<Int>
 ) : ArrayAdapter<String>(context, R.layout.settings_listitem, items) {
 
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var view = convertView
         val viewHolder: ViewHolder
 
         if (view == null) {
-            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater =
+                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             view = inflater.inflate(R.layout.settings_listitem, parent, false)
             viewHolder = ViewHolder(
                 view.findViewById(R.id.itemIconSuffix),
@@ -69,10 +71,16 @@ class SettingsListViewAdapter(
             setPadding(32, 16, 0, 16)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                backgroundTintList = ContextCompat.getColorStateList(context, R.color.grey_toolbar_footix)
+                backgroundTintList =
+                    ContextCompat.getColorStateList(context, R.color.grey_toolbar_footix)
             } else {
                 @Suppress("DEPRECATION")
-                setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.grey_toolbar_footix))
+                setBackgroundTintList(
+                    ContextCompat.getColorStateList(
+                        context,
+                        R.color.grey_toolbar_footix
+                    )
+                )
             }
 
         }
@@ -85,7 +93,7 @@ class SettingsListViewAdapter(
         }
 
         val dialog = AlertDialog.Builder(context)
-            .setCustomTitle(titleTextView) // Set custom title
+            .setCustomTitle(titleTextView)
             .setView(editText)
             .setPositiveButton(context.getString(R.string.save)) { _, _ ->
                 val inputText = editText.text.toString().trim()
@@ -94,33 +102,42 @@ class SettingsListViewAdapter(
 
                 sharedPreferences.edit().putString("item_$position", inputText).apply()
 
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm =
+                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(editText.windowToken, 0)
             }
             .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
 
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm =
+                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(editText.windowToken, 0)
             }
             .setOnDismissListener {
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm =
+                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(editText.windowToken, 0)
             }
             .create()
 
-        // Set background color
         dialog.window?.setBackgroundDrawableResource(R.color.grey_background_footix)
 
-        // Set text color
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
-            dialog.findViewById<TextView>(android.R.id.message)?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
-            dialog.findViewById<TextView>(context.resources.getIdentifier("alertTitle", "id", "android"))?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+            dialog.findViewById<TextView>(android.R.id.message)
+                ?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
+            dialog.findViewById<TextView>(
+                context.resources.getIdentifier(
+                    "alertTitle",
+                    "id",
+                    "android"
+                )
+            )?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
         }
 
-        // Show soft keyboard
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Session::class], version = 2, exportSchema = false)//, exportSchema = false)
+@Database(entities = [Session::class], version = 2, exportSchema = false)
 abstract class SessionDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
@@ -14,11 +14,6 @@ abstract class SessionDatabase : RoomDatabase() {
 
         @Volatile
         private var INSTANCE: SessionDatabase? = null
-        /*var MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Session ADD COLUMN id TEXT NOT NULL DEFAULT ''")
-            }
-        }*/
 
         fun getDatabase(context: Context): SessionDatabase {
             val tempInstance = INSTANCE

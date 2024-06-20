@@ -16,7 +16,8 @@ class RankingAdapter(context: Context, private val rankingList: List<RankingItem
         var listItemView = convertView
 
         if (listItemView == null) {
-            listItemView = LayoutInflater.from(context).inflate(R.layout.highscore_items, parent, false)
+            listItemView =
+                LayoutInflater.from(context).inflate(R.layout.highscore_items, parent, false)
         }
 
         val currentItem = rankingList[position]
@@ -25,7 +26,6 @@ class RankingAdapter(context: Context, private val rankingList: List<RankingItem
         val distanceTextView = listItemView?.findViewById<TextView>(R.id.distanceTextView)
         val dateTextView = listItemView?.findViewById<TextView>(R.id.dateTextView)
 
-        // Set text color here
         rankingNumberTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
         distanceTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
         dateTextView?.setTextColor(ContextCompat.getColor(context, R.color.black_footix))
@@ -37,6 +37,5 @@ class RankingAdapter(context: Context, private val rankingList: List<RankingItem
         return listItemView!!
     }
 }
-
 
 data class RankingItem(val rankingNumber: Int, val distance: String, val date: String)

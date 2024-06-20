@@ -32,7 +32,8 @@ class SettingsFragment : Fragment() {
     private lateinit var amountSession: TextView
     private lateinit var backButton: ImageView
     private lateinit var imageChangeButton: ImageView
-    private val items: MutableList<String> = mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
+    private val items: MutableList<String> =
+        mutableListOf("Name", "Birthday", "Position", "Height", "Weight")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +55,6 @@ class SettingsFragment : Fragment() {
 
         imageChangeButton.setOnClickListener {
             Toast.makeText(requireContext(), R.string.noImage, Toast.LENGTH_SHORT).show()
-
         }
 
         return view
@@ -101,7 +101,10 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun BottomNavigationView.changeColor(@ColorRes defaultColor: Int, @ColorRes selectedColor: Int) {
+    private fun BottomNavigationView.changeColor(
+        @ColorRes defaultColor: Int,
+        @ColorRes selectedColor: Int
+    ) {
         val colorStateList = ColorStateList(
             arrayOf(
                 intArrayOf(android.R.attr.state_pressed),

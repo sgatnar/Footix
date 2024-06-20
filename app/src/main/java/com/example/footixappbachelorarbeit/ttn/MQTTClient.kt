@@ -20,7 +20,8 @@ class MQTTClient(val context: Context) {
     //MQTT credentials
     val SERVER_URL_MQTT = "tcp://eu1.cloud.thethings.network:1883"
     val USERNAME_MQTT = "footix-gnss-application@ttn"
-    val PASSWORD_APIKEY_MQTT = "NNSXS.YKQELUZ3MNYEEWFD7BNQCORQDIQ52SKQRHTNQTQ.RVYLYOB7MIJ5LZS5HS2DD6ZFK6Z4QSNQJQZU4TWHEZYQP6RFRDOA" // APPKEY
+    val PASSWORD_APIKEY_MQTT =
+        "NNSXS.YKQELUZ3MNYEEWFD7BNQCORQDIQ52SKQRHTNQTQ.RVYLYOB7MIJ5LZS5HS2DD6ZFK6Z4QSNQJQZU4TWHEZYQP6RFRDOA" // APPKEY
     val TOPIC_UPLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/up"
     val TOPIC_DOWNLINK = "v3/footix-gnss-application@ttn/devices/eui-70b3d57ed0066110/down/push"
 
@@ -65,12 +66,13 @@ class MQTTClient(val context: Context) {
         }
     }
 
-     fun handlePayload(message: MqttMessage?) {
+    fun handlePayload(message: MqttMessage?) {
         try {
             val payload = String(message?.payload ?: return)
             val uplinkMessage = JSONObject(payload)
             Log.d(TAG, "Uplinkmessage: $uplinkMessage")
-            val frmPayloadBase64 = uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
+            val frmPayloadBase64 =
+                uplinkMessage.getJSONObject("uplink_message").getString("frm_payload")
             Log.d(TAG, "Payload: $frmPayloadBase64")
 
             val frmPayloadBytes = Base64.decode(frmPayloadBase64, Base64.DEFAULT)
@@ -114,7 +116,7 @@ class MQTTClient(val context: Context) {
     }
 
     fun publish(topic: String, data: JSONObject) {
-        val encodedPayload : ByteArray
+        val encodedPayload: ByteArray
         try {
             encodedPayload = data.toString().toByteArray(charset("UTF-8"))
             val message = MqttMessage(encodedPayload)
