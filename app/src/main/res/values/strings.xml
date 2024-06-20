@@ -27,7 +27,7 @@
     <string name="noSession">No session for this day.</string>
     <string name="noImage">This feature is currently not available.</string>
     <string name="highscore">HIGHSCORE</string>
-    <string name="startSesssionDescriptionText">Please position yourself in the middle of the field and press the START SESSION button.</string>
+    <string name="startSesssionDescriptionText">Start a session by pressing the START SESSION button.</string>
 
     <string name="generalError">Error: Please reopen Footix.</string>
     <string name="noInternet">NO INTERNET CONNECTION</string>
